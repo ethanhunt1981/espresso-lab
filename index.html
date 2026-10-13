@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktives Espresso-Lab</title>
+    <!-- Tailwind CSS für modernes Design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js für wissenschaftliche Diagramme -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom Slider Styling */
+        input[type=range] {
+            accent-color: #d97706;
+        }
+    </style>
+</head>
+<body class="bg-stone-950 text-stone-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-stone-900 border-b border-stone-800 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">☕</span>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-amber-500">Interaktives Espresso-Lab</h1>
+                    <p class="text-xs text-stone-400">Echtzeit-Simulation von Extraktion, Hydrodynamik & Geschmack</p>
+                </div>
+            </div>
+            <div class="flex gap-4 text-xs font-medium bg-stone-950 px-4 py-2 rounded-lg border border-stone-800">
+                <div>Zustand: <span id="status-badge" class="text-emerald-400 font-bold">Optimal</span></div>
+                <div>Extraktionszeit: <span id="timer-display" class="text-amber-400 font-bold">0.0s</span></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+        
+        <!-- Linke Spalte: Regler & Steuerung (5 Spalten) -->
+        <section class="lg:col-span-5 bg-stone-900/80 backdrop-blur border border-stone-800 rounded-2xl p-5 flex flex-col gap-6 shadow-xl">
+            <h2 class="text-lg font-semibold text-amber-400 border-b border-stone-800 pb-2 flex items-center justify-between">
+                <span>Brühparameter</span>
+                <button onclick="resetDefaults()" class="text-xs text-stone-400 hover:text-amber-400 transition underline">Standard</button>
+            </h2>
+
+            <!-- Mahlgröße -->
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <label for="grind-size" class="text-sm font-medium text-stone-300">Mahlgröße (Partikelgröße)</label>
+                    <span id="grind-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">300 µm</span>
+                </div>
+                <input type="range" id="grind-size" min="150" max="500" step="5" value="300" class="w-full cursor-pointer">
+                <div class="flex justify-between text-[10px] text-stone-500">
+                    <span>Fein (Staub/Espresso)</span>
+                    <span>Grob (Filter)</span>
+                </div>
+            </div>
+
+            <!-- Wassertemperatur -->
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <label for="temp" class="text-sm font-medium text-stone-300">Wassertemperatur</label>
+                    <span id="temp-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">93 °C</span>
+                </div>
+                <input type="range" id="temp" min="85" max="98" step="0.5" value="93" class="w-full cursor-pointer">
+                <div class="flex justify-between text-[10px] text-stone-500">
+                    <span>85 °C (Säuren dominant)</span>
+                    <span>98 °C (Schnelle Extraktion)</span>
+                </div>
+            </div>
+
+            <!-- Brühdruck -->
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <label for="pressure" class="text-sm font-medium text-stone-300">Brühdruck (Pumpe)</label>
+                    <span id="pressure-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">9.0 bar</span>
+                </div>
+                <input type="range" id="pressure" min="3" max="12" step="0.5" value="9.0" class="w-full cursor-pointer">
+                <div class="flex justify-between text-[10px] text-stone-500">
+                    <span>3 bar (Präinfusion / Sanft)</span>
+                    <span>12 bar (Hoher Puck-Druck)</span>
+                </div>
+            </div>
+
+            <!-- Kaffeedosis -->
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <label for="dose" class="text-sm font-medium text-stone-300">Kaffeedosis (Sieb)</label>
+                    <span id="dose-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">18.0 g</span>
+                </div>
+                <input type="range" id="dose" min="14" max="22" step="0.5" value="18.0" class="w-full cursor-pointer">
+                <div class="flex justify-between text-[10px] text-stone-500">
+                    <span>14 g (Klein)</span>
+                    <span>22 g (Voll)</span>
+                </div>
+            </div>
+
+            <!-- Live-Messwerte Box -->
+            <div class="bg-stone-950 border border-stone-800 rounded-xl p-4 grid grid-cols-3 gap-3 text-center mt-auto">
+                <div class="bg-stone-900/50 p-2 rounded-lg border border-stone-800">
+                    <div class="text-[11px] text-stone-400">Durchfluss</div>
+                    <div id="flow-display" class="text-base font-bold text-amber-400 font-mono mt-1">2.0 g/s</div>
+                </div>
+                <div class="bg-stone-900/50 p-2 rounded-lg border border-stone-800">
+                    <div class="text-[11px] text-stone-400">Ext.-Ausbeute</div>
+                    <div id="ey-display" class="text-base font-bold text-amber-400 font-mono mt-1">20.5%</div>
+                </div>
