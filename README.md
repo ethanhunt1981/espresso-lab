@@ -1,6 +1,8 @@
-# ☕ Interactive Espresso Lab
+# ☕ Interactive Espresso Lab / Interaktives Espresso-Lab
 
-An interactive web tool for real-time simulation of espresso extraction, fluid dynamics, and flavor profiles.
+*Note: This application is in German.*
+
+An interactive web tool for real-time simulation of espresso extraction, fluid dynamics, and flavor profiles. Built with the assistance of **Google Gemini 4 Argon**.
 
 ---
 
