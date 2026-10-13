@@ -2,7 +2,7 @@
 
 *Note: This application is in German.*
 
-An interactive web tool for real-time simulation of espresso extraction, fluid dynamics, and flavor profiles. Built with the assistance of **Google Gemini 4 Argon**.
+An interactive web tool for real-time simulation of espresso extraction, fluid dynamics, and flavor profiles. 
 
 ---
 
@@ -24,6 +24,12 @@ The Espresso Lab combines barista science with interactive web technology:
 
 ---
 
+## 🤖 Development & AI Collaboration
+
+This project was co-created through human-AI collaboration using **Google Gemini 4 Argon**. The user provided the prompt design, concepts, and requirements, while the AI assisted in generating and structuring the code, physics logic, and documentation.
+
+---
+
 ## 🛠️ Local Setup
 
 Since this project consists of a single standalone `index.html` file, no complex build tools or servers are required:
@@ -31,3 +37,9 @@ Since this project consists of a single standalone `index.html` file, no complex
 1. Clone the repository or download the `index.html`:
    ```bash
    git clone [https://github.com/ethanhunt1981/espresso-lab.git](https://github.com/ethanhunt1981/espresso-lab.git)
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
