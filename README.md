@@ -1,4 +1,4 @@
-# ☕ Interactive Espresso Lab / Interaktives Espresso-Lab
+# ☕ Interactive Espresso Lab
 
 *Note: This application is in German.*
 
@@ -36,7 +36,7 @@ Since this project consists of a single standalone `index.html` file, no complex
 
 1. Clone the repository or download the `index.html`:
    ```bash
-   git clone [https://github.com/ethanhunt1981/espresso-lab.git](https://github.com/ethanhunt1981/espresso-lab.git)
+   git clone https://github.com/ethanhunt1981/espresso-lab.git
 
 ---
 
