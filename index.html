@@ -1,111 +1,1385 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interaktives Espresso-Lab</title>
-    <!-- Tailwind CSS für modernes Design -->
+    <title>Barista Pro — Interaktives Espresso-Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js für wissenschaftliche Diagramme -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        espresso: {
+                            950: '#0f0a07',
+                            900: '#1c130e',
+                            800: '#2e1f16',
+                            700: '#4a3121',
+                            600: '#6e472b',
+                            500: '#9c6334',
+                            400: '#c88343',
+                            300: '#dea366',
+                            200: '#ecc599',
+                            100: '#f6e3cc',
+                        },
+                        crema: '#d99b52',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        
-        /* Custom Slider Styling */
-        input[type=range] {
-            accent-color: #d97706;
+        body {
+            background-color: #0c0a09;
+            color: #f5f5f4;
+            overflow-x: hidden;
+        }
+
+        /* Custom Range Slider Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #292524;
+            border-radius: 999px;
+            outline: none;
+            border: 1px solid #44403c;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #d97706;
+            cursor: pointer;
+            border: 3px solid #fef3c7;
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.5);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #f59e0b;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #d97706;
+            cursor: pointer;
+            border: 3px solid #fef3c7;
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.5);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        /* Subtle glassmorphism */
+        .glass-panel {
+            background: rgba(28, 25, 23, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Pulse animation for active extraction */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(217, 119, 6, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
+        }
+        .extracting-pulse {
+            animation: pulse-ring 1.5s infinite;
         }
     </style>
 </head>
-<body class="bg-stone-950 text-stone-100 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-amber-600 selection:text-white">
 
-    <!-- Header -->
-    <header class="bg-stone-900 border-b border-stone-800 py-4 px-6 shadow-md">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div class="flex items-center gap-3">
-                <span class="text-3xl">☕</span>
+    <!-- Top Header -->
+    <header class="border-b border-stone-800 bg-stone-950/90 sticky top-0 z-30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-espresso-700 flex items-center justify-center shadow-lg shadow-amber-900/30 border border-amber-400/30">
+                    <svg class="w-6 h-6 text-amber-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight text-amber-500">Interaktives Espresso-Lab</h1>
-                    <p class="text-xs text-stone-400">Echtzeit-Simulation von Extraktion, Hydrodynamik & Geschmack</p>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight text-stone-100 flex items-center gap-2">
+                        ESPRESSO LAB <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Sensory & Physics</span>
+                    </h1>
+                    <p class="text-xs text-stone-400">Interaktive Simulation für Extraktionsausbeute, Hydrodynamik & Sensorik</p>
                 </div>
             </div>
-            <div class="flex gap-4 text-xs font-medium bg-stone-950 px-4 py-2 rounded-lg border border-stone-800">
-                <div>Zustand: <span id="status-badge" class="text-emerald-400 font-bold">Optimal</span></div>
-                <div>Extraktionszeit: <span id="timer-display" class="text-amber-400 font-bold">0.0s</span></div>
+
+            <!-- Quick Presets -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs text-stone-400 mr-1 hidden sm:inline">Rezept-Vorlagen:</span>
+                <button onclick="applyPreset('sweetspot')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 hover:bg-emerald-900/80 transition flex items-center gap-1.5 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Perfekter Espresso
+                </button>
+                <button onclick="applyPreset('sour')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-yellow-300 border border-stone-700 hover:bg-stone-700 transition flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400"></span> Unterextrahiert (Grob)
+                </button>
+                <button onclick="applyPreset('bitter')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-amber-500 border border-stone-700 hover:bg-stone-700 transition flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-600"></span> Überextrahiert (Fein/Heiß)
+                </button>
+                <button onclick="applyPreset('turbo')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-sky-300 border border-stone-700 hover:bg-stone-700 transition flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span> Modern Turbo-Shot
+                </button>
             </div>
         </div>
     </header>
 
     <!-- Main Content Grid -->
-    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
-        
-        <!-- Linke Spalte: Regler & Steuerung (5 Spalten) -->
-        <section class="lg:col-span-5 bg-stone-900/80 backdrop-blur border border-stone-800 rounded-2xl p-5 flex flex-col gap-6 shadow-xl">
-            <h2 class="text-lg font-semibold text-amber-400 border-b border-stone-800 pb-2 flex items-center justify-between">
-                <span>Brühparameter</span>
-                <button onclick="resetDefaults()" class="text-xs text-stone-400 hover:text-amber-400 transition underline">Standard</button>
-            </h2>
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-            <!-- Mahlgröße -->
-            <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                    <label for="grind-size" class="text-sm font-medium text-stone-300">Mahlgröße (Partikelgröße)</label>
-                    <span id="grind-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">300 µm</span>
+            <!-- LEFT COLUMN: Parameter Controls (4 cols) -->
+            <section class="lg:col-span-4 flex flex-col gap-5">
+                <div class="glass-panel rounded-2xl p-5 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-5">
+                        <h2 class="text-base font-semibold text-stone-100 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                            </svg>
+                            Brühparameter einstellen
+                        </h2>
+                        <span class="text-xs font-mono text-stone-400">Dosis: <strong id="doseDisplay" class="text-stone-200">18.0g</strong></span>
+                    </div>
+
+                    <!-- 1. Grind Size Slider -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-baseline mb-1.5">
+                            <label for="grindSlider" class="text-sm font-medium text-stone-200 flex items-center gap-1.5">
+                                Mahlgröße (Grind Size)
+                            </label>
+                            <div class="text-right">
+                                <span id="grindValue" class="text-base font-mono font-bold text-amber-400">250 µm</span>
+                                <span id="grindLabel" class="text-xs text-stone-400 block">Mittel-Fein (Optimal)</span>
+                            </div>
+                        </div>
+                        <input type="range" id="grindSlider" min="150" max="400" step="5" value="250" aria-label="Mahlgröße">
+                        <div class="flex justify-between text-[11px] text-stone-400 font-mono mt-1.5">
+                            <span>150 µm (Sehr fein)</span>
+                            <span>275 µm</span>
+                            <span>400 µm (Grob)</span>
+                        </div>
+                        <!-- Visual Grind Particle Preview -->
+                        <div class="mt-2.5 h-9 rounded-lg bg-stone-900/90 border border-stone-800 px-3 flex items-center justify-between">
+                            <span class="text-[11px] text-stone-400">Partikel-Vorschau & Bett-Widerstand:</span>
+                            <div id="grindParticles" class="flex items-center space-x-1.5 overflow-hidden py-1"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Water Temperature Slider -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-baseline mb-1.5">
+                            <label for="tempSlider" class="text-sm font-medium text-stone-200">
+                                Wassertemperatur
+                            </label>
+                            <div class="text-right">
+                                <span id="tempValue" class="text-base font-mono font-bold text-rose-400">93.0 °C</span>
+                                <span id="tempLabel" class="text-xs text-stone-400 block">Standard-Röstung</span>
+                            </div>
+                        </div>
+                        <input type="range" id="tempSlider" min="86" max="98" step="0.5" value="93" aria-label="Wassertemperatur">
+                        <div class="flex justify-between text-[11px] text-stone-400 font-mono mt-1.5">
+                            <span>86 °C (Dunkel)</span>
+                            <span>92 °C</span>
+                            <span>98 °C (Hell)</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Pressure Slider -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-baseline mb-1.5">
+                            <label for="pressureSlider" class="text-sm font-medium text-stone-200">
+                                Brühdruck (Pump Pressure)
+                            </label>
+                            <div class="text-right">
+                                <span id="pressureValue" class="text-base font-mono font-bold text-sky-400">9.0 bar</span>
+                                <span id="pressureLabel" class="text-xs text-stone-400 block">Klassisch 9 Bar</span>
+                            </div>
+                        </div>
+                        <input type="range" id="pressureSlider" min="3" max="12" step="0.5" value="9" aria-label="Brühdruck">
+                        <div class="flex justify-between text-[11px] text-stone-400 font-mono mt-1.5">
+                            <span>3 bar (Low)</span>
+                            <span>6 bar (Modern)</span>
+                            <span>9 bar</span>
+                            <span>12 bar (Max)</span>
+                        </div>
+                        <div id="channelingWarning" class="hidden mt-2 p-2 rounded-lg bg-red-950/60 border border-red-700/60 text-[11px] text-red-300 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <span><strong>Channeling-Risiko!</strong> Hoher Druck auf feines Kaffeemehl erzeugt Risse im Puck.</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. Brew Time / Target Ratio Slider -->
+                    <div>
+                        <div class="flex justify-between items-baseline mb-1.5">
+                            <label for="timeSlider" class="text-sm font-medium text-stone-200">
+                                Bezugszeit (Shot Time)
+                            </label>
+                            <div class="text-right">
+                                <span id="timeValue" class="text-base font-mono font-bold text-emerald-400">28 s</span>
+                                <span id="timeLabel" class="text-xs text-stone-400 block">Inkl. 4s Präinfusion</span>
+                            </div>
+                        </div>
+                        <input type="range" id="timeSlider" min="15" max="45" step="1" value="28" aria-label="Bezugszeit">
+                        <div class="flex justify-between text-[11px] text-stone-400 font-mono mt-1.5">
+                            <span>15 s (Kurz)</span>
+                            <span>28 s (Standard)</span>
+                            <span>45 s (Lang)</span>
+                        </div>
+                    </div>
                 </div>
-                <input type="range" id="grind-size" min="150" max="500" step="5" value="300" class="w-full cursor-pointer">
-                <div class="flex justify-between text-[10px] text-stone-500">
-                    <span>Fein (Staub/Espresso)</span>
-                    <span>Grob (Filter)</span>
+
+                <!-- Dynamic Barista Coach Box -->
+                <div class="glass-panel rounded-2xl p-5 border-l-4 border-l-amber-500 shadow-lg">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="p-1.5 rounded-lg bg-amber-500/20 text-amber-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </span>
+                        <h3 class="text-sm font-semibold text-stone-100">Barista-Diagnose & Empfehlung</h3>
+                    </div>
+                    <p id="baristaAdvice" class="text-xs text-stone-300 leading-relaxed">
+                        Deine Parameter befinden sich im idealen Sweet Spot. Die feine Mahlung und 9 bar erzeugen einen gleichmäßigen Fluss für eine ausgewogene Süße.
+                    </p>
                 </div>
+            </section>
+
+            <!-- CENTER COLUMN: Live Extraction Visualizer (4 cols) -->
+            <section class="lg:col-span-4 flex flex-col gap-5">
+                <div class="glass-panel rounded-2xl p-5 flex flex-col items-center justify-between relative overflow-hidden shadow-xl">
+                    <!-- Top Status Bar -->
+                    <div class="w-full flex items-center justify-between z-10 mb-2">
+                        <div>
+                            <span class="text-xs uppercase tracking-wider font-mono text-stone-400 block">Live-Simulation</span>
+                            <h2 class="text-base font-semibold text-stone-100">Siebträger-Extraktion</h2>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="shotPhaseBadge" class="px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                Echtzeit-Fluss
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Canvas for Espresso Machine & Cup -->
+                    <div class="w-full relative flex justify-center my-1">
+                        <canvas id="espressoCanvas" class="w-full max-w-[320px] h-[330px] rounded-xl bg-gradient-to-b from-stone-950 via-stone-900/90 to-stone-950 border border-stone-800/80 shadow-inner"></canvas>
+                        
+                        <!-- Overlay Live Timer & Scale Readout inside Canvas Corner -->
+                        <div class="absolute top-3 left-4 bg-stone-950/85 border border-stone-800 rounded-lg px-2.5 py-1.5 backdrop-blur-sm">
+                            <div class="text-[10px] font-mono text-stone-400 uppercase">Flussrate</div>
+                            <div class="text-sm font-mono font-bold text-sky-400"><span id="liveFlowReadout">1.5</span> ml/s</div>
+                        </div>
+
+                        <div class="absolute top-3 right-4 bg-stone-950/85 border border-stone-800 rounded-lg px-2.5 py-1.5 backdrop-blur-sm text-right">
+                            <div class="text-[10px] font-mono text-stone-400 uppercase">Puck-Dichte</div>
+                            <div id="puckStateReadout" class="text-xs font-mono font-semibold text-emerald-400">Homogen</div>
+                        </div>
+                    </div>
+
+                    <!-- Digital Acaia-Style Scale Readout -->
+                    <div class="w-full bg-stone-950 border border-stone-800 rounded-xl p-3.5 mt-2 grid grid-cols-3 gap-2 text-center shadow-inner">
+                        <div class="border-r border-stone-800/80 pr-2">
+                            <span class="text-[10px] font-mono uppercase text-stone-400 block">Bezugszeit</span>
+                            <span id="scaleTimer" class="text-lg font-mono font-bold text-stone-100">0.0s</span>
+                        </div>
+                        <div class="border-r border-stone-800/80 px-2">
+                            <span class="text-[10px] font-mono uppercase text-stone-400 block">Getränkegewicht</span>
+                            <span id="scaleWeight" class="text-lg font-mono font-bold text-amber-400">36.0 g</span>
+                        </div>
+                        <div class="pl-2">
+                            <span class="text-[10px] font-mono uppercase text-stone-400 block">Brew Ratio</span>
+                            <span id="scaleRatio" class="text-lg font-mono font-bold text-emerald-400">1 : 2.0</span>
+                        </div>
+                    </div>
+
+                    <!-- Pull Shot Action Button -->
+                    <div class="w-full mt-4 flex gap-3">
+                        <button id="pullShotBtn" onclick="startTimedShot()" class="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-950 shadow-lg shadow-amber-900/40 transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="pullShotBtnText">Bezug neu starten (Shot-Simulation)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Key Metrics KPI Cards -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-panel rounded-2xl p-4 border border-stone-800">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs text-stone-400 font-medium">Extraktionsausbeute</span>
+                            <span id="eyStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="eyMetric" class="text-2xl font-mono font-bold text-stone-100">20.1%</span>
+                            <span class="text-xs font-mono text-stone-400">Ziel: 18–22%</span>
+                        </div>
+                        <div class="w-full bg-stone-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
+                            <div id="eyProgressBar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 65%"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-4 border border-stone-800">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs text-stone-400 font-medium">Konzentration (TDS)</span>
+                            <span class="text-[11px] font-mono text-amber-400" id="bodyTextureLabel">Sirupartig</span>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="tdsMetric" class="text-2xl font-mono font-bold text-stone-100">10.0%</span>
+                            <span class="text-xs font-mono text-stone-400">Stärke</span>
+                        </div>
+                        <div class="w-full bg-stone-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
+                            <div id="tdsProgressBar" class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: 68%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: Sensory Balance & Scientific Charts (4 cols) -->
+            <section class="lg:col-span-4 flex flex-col gap-5">
+                
+                <!-- 1. Acidity vs Bitterness & Sensory Profile -->
+                <div class="glass-panel rounded-2xl p-5 shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-base font-semibold text-stone-100 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                            </svg>
+                            Säure-Bitterkeit & Sensorik
+                        </h2>
+                        <span id="tasteProfileBadge" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            Harmonisch & Süß
+                        </span>
+                    </div>
+
+                    <!-- Dynamic Balance Spectrum Bar -->
+                    <div class="mt-2 mb-4">
+                        <div class="flex justify-between text-xs font-medium mb-1.5">
+                            <span class="text-yellow-400 flex items-center gap-1">🍋 Säure / Frucht</span>
+                            <span class="text-emerald-400 flex items-center gap-1">🍯 Süße</span>
+                            <span class="text-amber-600 flex items-center gap-1">🍫 Bitter /Herb</span>
+                        </div>
+                        <div class="relative h-4 w-full rounded-full bg-gradient-to-r from-yellow-400 via-emerald-500 to-amber-900 p-0.5 shadow-inner">
+                            <!-- Indicator Marker -->
+                            <div id="balanceMarker" class="absolute -top-1.5 w-4 h-7 rounded bg-white border-2 border-stone-900 shadow-lg transition-all duration-300" style="left: calc(50% - 8px);"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] font-mono text-stone-400 mt-1.5">
+                            <span id="acidityRatioText">Säure: 32%</span>
+                            <span id="sweetnessRatioText">Süße: 42%</span>
+                            <span id="bitternessRatioText">Bitterkeit: 26%</span>
+                        </div>
+                    </div>
+
+                    <!-- Individual Sensory Bars -->
+                    <div class="space-y-2.5 pt-2 border-t border-stone-800/80 text-xs">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-stone-300">Säure-Intensität (Acidity)</span>
+                                <span id="acidityScore" class="font-mono text-yellow-400">5.2 / 10</span>
+                            </div>
+                            <div class="w-full bg-stone-800 h-2 rounded-full overflow-hidden">
+                                <div id="acidityBar" class="bg-yellow-400 h-full rounded-full transition-all duration-300" style="width: 52%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-stone-300">Süße & Komplexität (Sweetness)</span>
+                                <span id="sweetnessScore" class="font-mono text-emerald-400">8.4 / 10</span>
+                            </div>
+                            <div class="w-full bg-stone-800 h-2 rounded-full overflow-hidden">
+                                <div id="sweetnessBar" class="bg-emerald-400 h-full rounded-full transition-all duration-300" style="width: 84%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-stone-300">Bitterkeit & Adstringenz (Bitterness)</span>
+                                <span id="bitternessScore" class="font-mono text-amber-500">4.5 / 10</span>
+                            </div>
+                            <div class="w-full bg-stone-800 h-2 rounded-full overflow-hidden">
+                                <div id="bitternessBar" class="bg-amber-600 h-full rounded-full transition-all duration-300" style="width: 45%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Interactive Charts (Tabs: Brewing Control Chart & Flow Profile) -->
+                <div class="glass-panel rounded-2xl p-5 shadow-xl flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-sm font-semibold text-stone-100">Wissenschaftliche Diagramme</h2>
+                        <div class="inline-flex rounded-lg bg-stone-900 p-0.5 border border-stone-800">
+                            <button id="tabBtnControl" onclick="switchChartTab('control')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition">
+                                EY% vs. TDS Matrix
+                            </button>
+                            <button id="tabBtnFlow" onclick="switchChartTab('flow')" class="px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition">
+                                Durchfluss & Extraktion
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chart 1: Brewing Control Chart (EY vs TDS) -->
+                    <div id="chartContainerControl" class="w-full">
+                        <canvas id="controlChartCanvas" class="w-full h-[220px] rounded-xl bg-stone-950 border border-stone-800"></canvas>
+                        <p class="text-[11px] text-stone-400 mt-2 leading-snug">
+                            Das <strong>Brüh-Kontrolldiagramm</strong> zeigt das Verhältnis von gelösten Kaffeestoffen (Extraktionsausbeute X-Achse) zur Getränkekonzentration (TDS% Y-Achse).
+                        </p>
+                    </div>
+
+                    <!-- Chart 2: Flow Rate & Extraction Kinetics over Time -->
+                    <div id="chartContainerFlow" class="w-full hidden">
+                        <canvas id="flowChartCanvas" class="w-full h-[220px] rounded-xl bg-stone-950 border border-stone-800"></canvas>
+                        <p class="text-[11px] text-stone-400 mt-2 leading-snug">
+                            <strong>Kinetik über die Zeit:</strong> Säuren lösen sich in den ersten Sekunden, gefolgt von Karamell-Süße und zuletzt herben Pflanzenfasern/Bitterstoffen.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer Info -->
+    <footer class="border-t border-stone-800/80 bg-stone-950/60 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-2">
+            <div>
+                Physikalisches Modell nach <span class="text-stone-300">Darcy-Gesetz (Permeabilität im Kaffeepuck)</span> & <span class="text-stone-300">Arrhenius-Löslichkeitskinetik</span>.
             </div>
-
-            <!-- Wassertemperatur -->
-            <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                    <label for="temp" class="text-sm font-medium text-stone-300">Wassertemperatur</label>
-                    <span id="temp-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">93 °C</span>
-                </div>
-                <input type="range" id="temp" min="85" max="98" step="0.5" value="93" class="w-full cursor-pointer">
-                <div class="flex justify-between text-[10px] text-stone-500">
-                    <span>85 °C (Säuren dominant)</span>
-                    <span>98 °C (Schnelle Extraktion)</span>
-                </div>
+            <div class="flex items-center gap-4 font-mono text-[11px]">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> &lt;18% Unterextrahiert</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> 18–22% Ideal (Sweet Spot)</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-600"></span> &gt;22% Überextrahiert</span>
             </div>
+        </div>
+    </footer>
 
-            <!-- Brühdruck -->
-            <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                    <label for="pressure" class="text-sm font-medium text-stone-300">Brühdruck (Pumpe)</label>
-                    <span id="pressure-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">9.0 bar</span>
-                </div>
-                <input type="range" id="pressure" min="3" max="12" step="0.5" value="9.0" class="w-full cursor-pointer">
-                <div class="flex justify-between text-[10px] text-stone-500">
-                    <span>3 bar (Präinfusion / Sanft)</span>
-                    <span>12 bar (Hoher Puck-Druck)</span>
-                </div>
-            </div>
+    <script>
+        // --- STATE & PHYSICAL PARAMETERS ---
+        const state = {
+            dose: 18.0,          // grams of dry coffee
+            grind: 250,          // microns (150 = very fine, 400 = coarse)
+            temp: 93.0,          // Celsius (86 - 98)
+            pressure: 9.0,       // bar (3 - 12)
+            shotTime: 28,        // seconds (15 - 45)
+            
+            // Calculated outputs
+            flowRate: 1.5,       // ml/s (or g/s)
+            beverageWeight: 36,  // g
+            extractionYield: 20, // % of dry coffee mass dissolved
+            tds: 10.0,           // % concentration in cup
+            channelingIndex: 0,  // 0 to 1
+            acidity: 5.0,        // 0 - 10
+            sweetness: 8.5,      // 0 - 10
+            bitterness: 4.5,     // 0 - 10
+            balancePosition: 50, // 0 (Pure Sour) to 100 (Pure Bitter), 50 = Balanced Sweet
+            
+            // Animation state
+            activeChartTab: 'control',
+            simRunning: true,
+            shotElapsed: 28.0,   // Current animated timer
+            isTimedPull: false,  // True when user clicks "Bezug neu starten"
+            streamParticles: []
+        };
 
-            <!-- Kaffeedosis -->
-            <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                    <label for="dose" class="text-sm font-medium text-stone-300">Kaffeedosis (Sieb)</label>
-                    <span id="dose-val" class="text-amber-400 font-mono text-sm bg-stone-950 px-2 py-0.5 rounded border border-stone-800">18.0 g</span>
-                </div>
-                <input type="range" id="dose" min="14" max="22" step="0.5" value="18.0" class="w-full cursor-pointer">
-                <div class="flex justify-between text-[10px] text-stone-500">
-                    <span>14 g (Klein)</span>
-                    <span>22 g (Voll)</span>
-                </div>
-            </div>
+        // DOM Elements Cache
+        const els = {
+            grindSlider: document.getElementById('grindSlider'),
+            tempSlider: document.getElementById('tempSlider'),
+            pressureSlider: document.getElementById('pressureSlider'),
+            timeSlider: document.getElementById('timeSlider'),
+            
+            grindValue: document.getElementById('grindValue'),
+            grindLabel: document.getElementById('grindLabel'),
+            grindParticles: document.getElementById('grindParticles'),
+            tempValue: document.getElementById('tempValue'),
+            tempLabel: document.getElementById('tempLabel'),
+            pressureValue: document.getElementById('pressureValue'),
+            pressureLabel: document.getElementById('pressureLabel'),
+            channelingWarning: document.getElementById('channelingWarning'),
+            timeValue: document.getElementById('timeValue'),
+            
+            liveFlowReadout: document.getElementById('liveFlowReadout'),
+            puckStateReadout: document.getElementById('puckStateReadout'),
+            scaleTimer: document.getElementById('scaleTimer'),
+            scaleWeight: document.getElementById('scaleWeight'),
+            scaleRatio: document.getElementById('scaleRatio'),
+            
+            eyMetric: document.getElementById('eyMetric'),
+            eyStatusDot: document.getElementById('eyStatusDot'),
+            eyProgressBar: document.getElementById('eyProgressBar'),
+            tdsMetric: document.getElementById('tdsMetric'),
+            tdsProgressBar: document.getElementById('tdsProgressBar'),
+            bodyTextureLabel: document.getElementById('bodyTextureLabel'),
+            
+            tasteProfileBadge: document.getElementById('tasteProfileBadge'),
+            balanceMarker: document.getElementById('balanceMarker'),
+            acidityRatioText: document.getElementById('acidityRatioText'),
+            sweetnessRatioText: document.getElementById('sweetnessRatioText'),
+            bitternessRatioText: document.getElementById('bitternessRatioText'),
+            acidityScore: document.getElementById('acidityScore'),
+            sweetnessScore: document.getElementById('sweetnessScore'),
+            bitternessScore: document.getElementById('bitternessScore'),
+            acidityBar: document.getElementById('acidityBar'),
+            sweetnessBar: document.getElementById('sweetnessBar'),
+            bitternessBar: document.getElementById('bitternessBar'),
+            
+            baristaAdvice: document.getElementById('baristaAdvice'),
+            espressoCanvas: document.getElementById('espressoCanvas'),
+            controlChartCanvas: document.getElementById('controlChartCanvas'),
+            flowChartCanvas: document.getElementById('flowChartCanvas'),
+            pullShotBtn: document.getElementById('pullShotBtn'),
+            pullShotBtnText: document.getElementById('pullShotBtnText')
+        };
 
-            <!-- Live-Messwerte Box -->
-            <div class="bg-stone-950 border border-stone-800 rounded-xl p-4 grid grid-cols-3 gap-3 text-center mt-auto">
-                <div class="bg-stone-900/50 p-2 rounded-lg border border-stone-800">
-                    <div class="text-[11px] text-stone-400">Durchfluss</div>
-                    <div id="flow-display" class="text-base font-bold text-amber-400 font-mono mt-1">2.0 g/s</div>
-                </div>
-                <div class="bg-stone-900/50 p-2 rounded-lg border border-stone-800">
-                    <div class="text-[11px] text-stone-400">Ext.-Ausbeute</div>
-                    <div id="ey-display" class="text-base font-bold text-amber-400 font-mono mt-1">20.5%</div>
-                </div>
+        function calculateEspressoPhysics() {
+            const G = state.grind;       // 150 - 400 µm
+            const T = state.temp;        // 86 - 98 °C
+            const P = state.pressure;    // 3 - 12 bar
+            const time = state.shotTime; // 15 - 45 s
+
+            // 1. Puck permeability (Kozeny-Carman inspired relation)
+            const grindNorm = Math.pow(G / 250, 2.25);
+
+            // 2. Pressure effect with puck compression at high pressure (>9.5 bar)
+            // Ideal pressure conductivity peaks around 8.5-9 bar; excessive pressure compresses the puck or causes micro-channeling
+            let pressureFactor = (P / 9.0) * (1 - 0.032 * Math.max(0, P - 8.5));
+
+            // 3. Channeling risk calculation (High pressure + Very fine grind or very coarse grind instability)
+            let chRisk = 0;
+            if (P > 9.5 && G < 235) {
+                chRisk = Math.min(1, ((P - 9.0) * (245 - G)) / 140);
+            } else if (P >= 11.0) {
+                chRisk = Math.min(0.8, (P - 10.0) * 0.25);
+            }
+            state.channelingIndex = chRisk;
+
+            // Viscosity effect of hotter water (slightly faster flow at high temp)
+            const tempViscosityFactor = 1 + (T - 93) * 0.008;
+
+            // Channeling spikes local flow rate while lowering uniform extraction efficiency
+            const channelingFlowSpike = 1 + chRisk * 0.45;
+
+            // Steady-state flow rate (ml/s)
+            const rawFlow = 1.50 * grindNorm * pressureFactor * tempViscosityFactor * channelingFlowSpike;
+            state.flowRate = Math.max(0.25, Math.min(5.5, rawFlow));
+
+            // Effective brewing time after 4s pre-infusion wetting
+            const effectiveFlowTime = Math.max(4, time - 4);
+            state.beverageWeight = Math.max(8, Math.min(110, state.flowRate * effectiveFlowTime));
+
+            // 4. Extraction Yield (EY%) Calculation
+            // Finer grind = exponentially larger surface area
+            const surfaceAreaFactor = Math.pow(250 / G, 1.32);
+            // Higher temperature increases kinetic solubility
+            const solubilityTempFactor = 1 + (T - 93) * 0.026;
+            // Pressure emulsification & contact efficiency
+            const pressureExtractFactor = Math.pow(P / 9.0, 0.28) * (1 - chRisk * 0.22);
+            // Saturation curve over time and water volume passed through puck
+            const timeWaterSaturation = 1 - Math.exp(-(time / 24.5) * Math.pow(state.beverageWeight / 36, 0.35));
+
+            const rawEY = 20.1 * surfaceAreaFactor * solubilityTempFactor * pressureExtractFactor * (timeWaterSaturation / (1 - Math.exp(-28 / 24.5)));
+            state.extractionYield = Math.max(9.0, Math.min(28.5, rawEY));
+
+            // 5. TDS% (Total Dissolved Solids concentration in the cup)
+            // Dissolved mass = (Dose * EY%) / BeverageWeight
+            const dissolvedGrams = (state.dose * (state.extractionYield / 100));
+            state.tds = Math.max(2.5, Math.min(18.5, (dissolvedGrams / state.beverageWeight) * 100));
+
+            // 6. Sensory Chemistry (Acidity, Sweetness, Bitterness)
+            const ey = state.extractionYield;
+            
+            // Organic acids extract very early and shine at lower temps; masked at high EY/temp
+            let rawAcidity = 9.2 * Math.exp(-Math.max(0, ey - 13.5) * 0.085) * (1 - (T - 93) * 0.025);
+            rawAcidity = Math.max(1.2, Math.min(9.8, rawAcidity));
+
+            // Sugars & Maillard compounds peak around 19.5% - 21.0% EY and low channeling
+            const distFromSweetSpot = ey - 20.1;
+            let rawSweetness = 9.3 * Math.exp(-Math.pow(distFromSweetSpot / 3.4, 2)) * (1 - chRisk * 0.45);
+            // Extreme temps slightly mute perceived sweetness
+            rawSweetness *= (1 - Math.abs(T - 92.5) * 0.015);
+            rawSweetness = Math.max(1.0, Math.min(9.8, rawSweetness));
+
+            // Bitter alkaloids, trigonelline breakdown, and dry tannins surge above 21.5% EY, high temp, or channeling
+            let rawBitterness = 1.6 + Math.pow(Math.max(0, ey - 14.5) / 5.2, 2.35) * 3.1 + Math.max(0, (T - 92) * 0.35) + (chRisk * 3.2);
+            rawBitterness = Math.max(1.0, Math.min(9.9, rawBitterness));
+
+            state.acidity = rawAcidity;
+            state.sweetness = rawSweetness;
+            state.bitterness = rawBitterness;
+
+            // Balance Marker Position (0 = Sour, 50 = Balanced Sweet, 100 = Bitter)
+            const balanceIndex = 50 + (ey - 20.0) * 6.2 + (T - 93.0) * 1.4 + (chRisk * 14);
+            state.balancePosition = Math.max(4, Math.min(96, balanceIndex));
+        }
+
+        function updateUI() {
+            calculateEspressoPhysics();
+
+            // Update Slider Value Readouts
+            els.grindValue.textContent = `${state.grind} µm`;
+            if (state.grind < 200) els.grindLabel.textContent = 'Sehr fein (Ristretto/Choke)';
+            else if (state.grind < 235) els.grindLabel.textContent = 'Fein';
+            else if (state.grind <= 275) els.grindLabel.textContent = 'Mittel-Fein (Ideal)';
+            else if (state.grind <= 330) els.grindLabel.textContent = 'Mittel-Grob (Turbo)';
+            else els.grindLabel.textContent = 'Grob (Unterextrahiert)';
+
+            els.tempValue.textContent = `${state.temp.toFixed(1)} °C`;
+            if (state.temp < 89.5) els.tempLabel.textContent = 'Kühl (Für dunkle Röstungen)';
+            else if (state.temp <= 94.5) els.tempLabel.textContent = 'Ausgewogen (Medium Roast)';
+            else els.tempLabel.textContent = 'Heiß (Für helle Röstungen)';
+
+            els.pressureValue.textContent = `${state.pressure.toFixed(1)} bar`;
+            if (state.pressure < 5.5) els.pressureLabel.textContent = 'Sanfte Präinfusion / Low';
+            else if (state.pressure <= 7.5) els.pressureLabel.textContent = 'Modernes 6-Bar-Profil';
+            else if (state.pressure <= 9.5) els.pressureLabel.textContent = 'Klassischer 9-Bar-Standard';
+            else els.pressureLabel.textContent = 'Überdruck (Kompressionsgefahr)';
+
+            els.timeValue.textContent = `${state.shotTime} s`;
+
+            // Channeling warning visibility
+            if (state.channelingIndex > 0.18) {
+                els.channelingWarning.classList.remove('hidden');
+                els.puckStateReadout.textContent = 'Channeling!';
+                els.puckStateReadout.className = 'text-xs font-mono font-semibold text-red-400';
+            } else if (state.grind < 190) {
+                els.channelingWarning.classList.add('hidden');
+                els.puckStateReadout.textContent = 'Gestaut (Choke)';
+                els.puckStateReadout.className = 'text-xs font-mono font-semibold text-amber-400';
+            } else {
+                els.channelingWarning.classList.add('hidden');
+                els.puckStateReadout.textContent = 'Homogen';
+                els.puckStateReadout.className = 'text-xs font-mono font-semibold text-emerald-400';
+            }
+
+            // Render Grind Particles Preview
+            renderGrindParticles();
+
+            // Telemetry & Scale
+            els.liveFlowReadout.textContent = state.flowRate.toFixed(2);
+            if (!state.isTimedPull) {
+                state.shotElapsed = state.shotTime;
+                els.scaleTimer.textContent = `${state.shotTime.toFixed(1)}s`;
+                els.scaleWeight.textContent = `${state.beverageWeight.toFixed(1)} g`;
+            }
+            const ratio = state.beverageWeight / state.dose;
+            els.scaleRatio.textContent = `1 : ${ratio.toFixed(1)}`;
+
+            // EY% & TDS% Cards
+            els.eyMetric.textContent = `${state.extractionYield.toFixed(1)}%`;
+            const eyPercentBar = ((state.extractionYield - 10) / 18) * 100;
+            els.eyProgressBar.style.width = `${Math.max(5, Math.min(100, eyPercentBar))}%`;
+
+            if (state.extractionYield < 18.0) {
+                els.eyStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-yellow-400';
+                els.eyProgressBar.className = 'bg-yellow-400 h-full rounded-full transition-all duration-300';
+            } else if (state.extractionYield <= 22.0) {
+                els.eyStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                els.eyProgressBar.className = 'bg-emerald-500 h-full rounded-full transition-all duration-300';
+            } else {
+                els.eyStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-600';
+                els.eyProgressBar.className = 'bg-amber-600 h-full rounded-full transition-all duration-300';
+            }
+
+            els.tdsMetric.textContent = `${state.tds.toFixed(1)}%`;
+            const tdsPercentBar = (state.tds / 16) * 100;
+            els.tdsProgressBar.style.width = `${Math.max(5, Math.min(100, tdsPercentBar))}%`;
+
+            if (state.tds > 12.5) els.bodyTextureLabel.textContent = 'Schwer / Ristretto';
+            else if (state.tds >= 8.0) els.bodyTextureLabel.textContent = 'Sirupartig (Ideal)';
+            else if (state.tds >= 5.5) els.bodyTextureLabel.textContent = 'Seidig / Leicht';
+            else els.bodyTextureLabel.textContent = 'Wässrig / Lungo';
+
+            // Sensory Balance & Scores
+            els.balanceMarker.style.left = `calc(${state.balancePosition}% - 8px)`;
+            
+            const totalSensory = state.acidity + state.sweetness + state.bitterness;
+            const acidPct = Math.round((state.acidity / totalSensory) * 100);
+            const sweetPct = Math.round((state.sweetness / totalSensory) * 100);
+            const bitterPct = 100 - acidPct - sweetPct;
+
+            els.acidityRatioText.textContent = `Säure: ${acidPct}%`;
+            els.sweetnessRatioText.textContent = `Süße: ${sweetPct}%`;
+            els.bitternessRatioText.textContent = `Bitterkeit: ${bitterPct}%`;
+
+            els.acidityScore.textContent = `${state.acidity.toFixed(1)} / 10`;
+            els.sweetnessScore.textContent = `${state.sweetness.toFixed(1)} / 10`;
+            els.bitternessScore.textContent = `${state.bitterness.toFixed(1)} / 10`;
+
+            els.acidityBar.style.width = `${state.acidity * 10}%`;
+            els.sweetnessBar.style.width = `${state.sweetness * 10}%`;
+            els.bitternessBar.style.width = `${state.bitterness * 10}%`;
+
+            // Taste Badge & Barista Coach Text
+            updateDiagnosis();
+
+            // Redraw Scientific Charts
+            drawControlChart();
+            drawFlowChart();
+        }
+
+        function renderGrindParticles() {
+            els.grindParticles.innerHTML = '';
+            // Size of dots scales with grind size (150 -> 3px, 400 -> 9px)
+            const dotSize = Math.max(3, Math.round((state.grind - 120) / 32));
+            const count = Math.max(8, Math.min(22, Math.floor(140 / dotSize)));
+            for (let i = 0; i < count; i++) {
+                const dot = document.createElement('span');
+                dot.style.width = `${dotSize}px`;
+                dot.style.height = `${dotSize}px`;
+                dot.className = 'rounded-full bg-amber-600/90 border border-amber-400/40 inline-block shrink-0';
+                els.grindParticles.appendChild(dot);
+            }
+        }
+
+        function updateDiagnosis() {
+            const ey = state.extractionYield;
+            const tds = state.tds;
+            const ch = state.channelingIndex;
+
+            if (ch > 0.25) {
+                els.tasteProfileBadge.textContent = 'Uneben (Sauer + Adstringierend)';
+                els.tasteProfileBadge.className = 'text-xs font-mono px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-300 border border-red-500/30';
+                els.baristaAdvice.innerHTML = '<strong>Warnung vor Channeling:</strong> Durch den hohen Druck bei sehr feinem Mahlgrad bricht das Wasser Kanäle durch den Kaffeepuck. Entlang der Kanäle wird der Kaffee bitter und holzig überextrahiert, während der Rest sauer bleibt. <em>Tipp: Druck auf 8–9 bar senken oder etwas gröber mahlen.</em>';
+            } else if (ey < 18.0) {
+                els.tasteProfileBadge.textContent = 'Sauer & Unterextrahiert';
+                els.tasteProfileBadge.className = 'text-xs font-mono px-2.5 py-0.5 rounded-md bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
+                els.baristaAdvice.innerHTML = `Mit <strong>${ey.toFixed(1)}% Ausbeute</strong> wurden hauptsächlich schnell lösliche Fruchtsäuren extrahiert, aber kaum komplexe Zucker. Der Espresso schmeckt spitz, salzig-sauer und hat wenig Nachgeschmack. <em>Tipp: Feiner mahlen, Temperatur erhöhen oder Bezugszeit verlängern.</em>`;
+            } else if (ey > 22.2) {
+                els.tasteProfileBadge.textContent = 'Bitter & Überextrahiert';
+                els.tasteProfileBadge.className = 'text-xs font-mono px-2.5 py-0.5 rounded-md bg-amber-600/20 text-amber-400 border border-amber-600/30';
+                els.baristaAdvice.innerHTML = `Bei <strong>${ey.toFixed(1)}% Ausbeute</strong> werden trockene Gerbstoffe, Koffein und Pflanzenfasern stark ausgelaugt. Das Ergebnis schmeckt dunkel-bitter, aschig und belegt die Zunge adstringierend. <em>Tipp: Gröber mahlen, Wassertemperatur auf 91–93 °C senken oder Bezug früher stoppen.</em>`;
+            } else {
+                if (tds >= 7.5 && tds <= 12.5) {
+                    els.tasteProfileBadge.textContent = 'Sweet Spot (Harmonisch)';
+                    els.tasteProfileBadge.className = 'text-xs font-mono px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                    els.baristaAdvice.innerHTML = `<strong>Exzellente Balance!</strong> Mit <strong>${ey.toFixed(1)}% Ausbeute</strong> und <strong>${tds.toFixed(1)}% TDS</strong> treffen lebendige Säure und Röstaromen auf maximale Karamellsüße und ein samtiges Mundgefühl (Tigermuster-Crema).`;
+                } else if (tds < 7.5) {
+                    els.tasteProfileBadge.textContent = 'Ausgewogen & Floral (Lungo/Turbo)';
+                    els.tasteProfileBadge.className = 'text-xs font-mono px-2.5 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30';
+                    els.baristaAdvice.innerHTML = `Die Extraktionsausbeute liegt mit <strong>${ey.toFixed(1)}%</strong> im idealen Bereich, ist aber durch den schnellen Durchfluss auf mehr Wasser verteilt (${state.beverageWeight.toFixed(0)}g). Das ergibt einen klaren, saftigen Modern-Espresso (Turbo-Shot) mit hoher Transparenz.`;
+                } else {
+                    els.tasteProfileBadge.textContent = 'Intensives Ristretto-Profil';
+                    els.tasteProfileBadge.className = 'text-xs font-mono px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                    els.baristaAdvice.innerHTML = `Gute Extraktion bei extrem hoher Konzentration (<strong>${tds.toFixed(1)}% TDS</strong>). Sehr dichter, schokoladiger Körper mit schwerer Textur.`;
+                }
+            }
+        }
+
+        function drawControlChart() {
+            const canvas = els.controlChartCanvas;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0) return;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const w = rect.width;
+            const h = rect.height;
+            const pad = { top: 20, right: 20, bottom: 32, left: 42 };
+            const plotW = w - pad.left - pad.right;
+            const plotH = h - pad.top - pad.bottom;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Axis ranges: X = EY% (12 to 26), Y = TDS% (4 to 16)
+            const minX = 12, maxX = 26;
+            const minY = 4, maxY = 16;
+
+            const toX = (ey) => pad.left + ((ey - minX) / (maxX - minX)) * plotW;
+            const toY = (tds) => pad.top + plotH - ((tds - minY) / (maxY - minY)) * plotH;
+
+            // 1. Background Zones (Under-extracted, Ideal, Over-extracted)
+            const x18 = toX(18);
+            const x22 = toX(22);
+            const y8 = toY(8);
+            const y12 = toY(12.5);
+
+            // Under-extracted tint
+            ctx.fillStyle = 'rgba(250, 204, 21, 0.05)';
+            ctx.fillRect(pad.left, pad.top, x18 - pad.left, plotH);
+
+            // Over-extracted tint
+            ctx.fillStyle = 'rgba(217, 119, 6, 0.05)';
+            ctx.fillRect(x22, pad.top, (pad.left + plotW) - x22, plotH);
+
+            // Ideal Sweet Spot Box (18-22% EY, 8-12.5% TDS)
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.fillRect(x18, y12, x22 - x18, y8 - y12);
+            ctx.strokeRect(x18, y12, x22 - x18, y8 - y12);
+
+            ctx.fillStyle = 'rgba(52, 211, 153, 0.85)';
+            ctx.font = '600 10px Inter, sans-serif';
+            ctx.fillText('SCA SWEET SPOT', x18 + 6, y12 + 13);
+
+            // 2. Grid lines & Diagonal Brew Ratio Lines (1:1.5, 1:2, 1:3)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+            ctx.lineWidth = 1;
+            for (let ey = 14; ey <= 24; ey += 2) {
+                const x = toX(ey);
+                ctx.beginPath();
+                ctx.moveTo(x, pad.top);
+                ctx.lineTo(x, pad.top + plotH);
+                ctx.stroke();
+
+                ctx.fillStyle = '#78716c';
+                ctx.font = '10px JetBrains Mono, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${ey}%`, x, h - 10);
+            }
+
+            for (let tds = 6; tds <= 14; tds += 2) {
+                const y = toY(tds);
+                ctx.beginPath();
+                ctx.moveTo(pad.left, y);
+                ctx.lineTo(pad.left + plotW, y);
+                ctx.stroke();
+
+                ctx.fillStyle = '#78716c';
+                ctx.font = '10px JetBrains Mono, monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${tds}%`, pad.left - 6, y + 3);
+            }
+
+            // Diagonal Brew Ratio lines (TDS = EY / Ratio)
+            const ratios = [
+                { r: 1.5, label: '1:1.5' },
+                { r: 2.0, label: '1:2.0' },
+                { r: 2.8, label: '1:2.8' }
+            ];
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(pad.left, pad.top, plotW, plotH);
+            ctx.clip();
+
+            ratios.forEach(item => {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(toX(12), toY(12 / item.r));
+                ctx.lineTo(toX(26), toY(26 / item.r));
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                const labelEY = 24.5;
+                const labelY = toY(labelEY / item.r);
+                if (labelY > pad.top + 10 && labelY < pad.top + plotH - 5) {
+                    ctx.fillStyle = 'rgba(168, 162, 158, 0.7)';
+                    ctx.font = '9px JetBrains Mono, monospace';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(item.label, toX(labelEY), labelY - 3);
+                }
+            });
+
+            // 3. Plot Current Operating Point
+            const clampedEY = Math.max(minX, Math.min(maxX, state.extractionYield));
+            const clampedTDS = Math.max(minY, Math.min(maxY, state.tds));
+            const ptX = toX(clampedEY);
+            const ptY = toY(clampedTDS);
+
+            // Crosshair lines
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(ptX, pad.top);
+            ctx.lineTo(ptX, pad.top + plotH);
+            ctx.moveTo(pad.left, ptY);
+            ctx.lineTo(pad.left + plotW, ptY);
+            ctx.stroke();
+
+            // Outer glow & dot
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
+            ctx.beginPath();
+            ctx.arc(ptX, ptY, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#f59e0b';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(ptX, ptY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Axis Titles
+            ctx.fillStyle = '#a8a29e';
+            ctx.font = '500 10px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Extraktionsausbeute (EY %)', pad.left + plotW / 2, h - 1);
+        }
+
+        function drawFlowChart() {
+            const canvas = els.flowChartCanvas;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0) return;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const w = rect.width;
+            const h = rect.height;
+            const pad = { top: 20, right: 20, bottom: 30, left: 38 };
+            const plotW = w - pad.left - pad.right;
+            const plotH = h - pad.top - pad.bottom;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const maxT = 45;
+            const toX = (t) => pad.left + (t / maxT) * plotW;
+            const toY = (val, maxVal) => pad.top + plotH - (val / maxVal) * plotH;
+
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+            ctx.lineWidth = 1;
+            for (let t = 0; t <= 45; t += 15) {
+                const x = toX(t);
+                ctx.beginPath();
+                ctx.moveTo(x, pad.top);
+                ctx.lineTo(x, pad.top + plotH);
+                ctx.stroke();
+
+                ctx.fillStyle = '#78716c';
+                ctx.font = '10px JetBrains Mono, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${t}s`, x, h - 8);
+            }
+
+            // Active Shot Time Vertical Marker
+            const shotX = toX(state.shotTime);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.fillRect(pad.left, pad.top, shotX - pad.left, plotH);
+
+            ctx.strokeStyle = '#10b981';
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            ctx.moveTo(shotX, pad.top);
+            ctx.lineTo(shotX, pad.top + plotH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Curve 1: Flow Rate over time (ml/s, scaled 0 to 5)
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let t = 0; t <= maxT; t += 1) {
+                // Pre-infusion ramp for first 4.5s, then gradual puck erosion increase
+                let f = 0;
+                if (t > 3) {
+                    const ramp = 1 - Math.exp(-(t - 3) / 2.2);
+                    const puckErosion = 1 + (t / 45) * (0.18 + state.channelingIndex * 0.4);
+                    f = state.flowRate * ramp * puckErosion;
+                }
+                const x = toX(t);
+                const y = toY(Math.min(4.8, f), 5.0);
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Curve 2: Instantaneous Acidity Extraction (Yellow)
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 1.75;
+            ctx.beginPath();
+            for (let t = 0; t <= maxT; t += 1) {
+                const val = t < 3 ? 0 : 9.0 * Math.exp(-(t - 4) / (11 * (250 / state.grind)));
+                const x = toX(t);
+                const y = toY(Math.max(0.5, Math.min(9.5, val)), 10);
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Curve 3: Instantaneous Bitterness Extraction (Amber/Brown)
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 1.75;
+            ctx.beginPath();
+            for (let t = 0; t <= maxT; t += 1) {
+                const speedFactor = (state.temp - 80) / 13 * (260 / state.grind);
+                const val = t < 4 ? 0 : 9.2 * (1 - Math.exp(-Math.pow((t - 4) / 22, 2.1) * speedFactor));
+                const x = toX(t);
+                const y = toY(Math.max(0.3, Math.min(9.5, val)), 10);
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Legend inside top-left
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillText('● Flussrate (ml/s)', pad.left + 6, pad.top + 12);
+            ctx.fillStyle = '#facc15';
+            ctx.fillText('● Säure-Lösung', pad.left + 102, pad.top + 12);
+            ctx.fillStyle = '#d97706';
+            ctx.fillText('● Bitterstoffe', pad.left + 185, pad.top + 12);
+        }
+
+        function animateEspressoStream() {
+            const canvas = els.espressoCanvas;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+
+            if (rect.width > 0 && (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr)) {
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+            }
+            ctx.save();
+            ctx.scale(dpr, dpr);
+
+            const w = rect.width;
+            const h = rect.height;
+            const cx = w / 2;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Handle timed shot simulation progress
+            if (state.isTimedPull) {
+                state.shotElapsed += 0.08; // ~4.8x real-time for crisp interactive feedback
+                if (state.shotElapsed >= state.shotTime) {
+                    state.shotElapsed = state.shotTime;
+                    state.isTimedPull = false;
+                    els.pullShotBtn.classList.remove('extracting-pulse');
+                    els.pullShotBtnText.textContent = 'Bezug neu starten (Shot-Simulation)';
+                }
+                const currentProgress = Math.max(0, (state.shotElapsed - 3.5) / Math.max(1, state.shotTime - 3.5));
+                const currentWeight = Math.min(state.beverageWeight, state.beverageWeight * currentProgress);
+                els.scaleTimer.textContent = `${state.shotElapsed.toFixed(1)}s`;
+                els.scaleWeight.textContent = `${Math.max(0, currentWeight).toFixed(1)} g`;
+            }
+
+            const progressRatio = state.isTimedPull
+                ? Math.min(1, Math.max(0.05, (state.shotElapsed - 2) / Math.max(1, state.shotTime - 2)))
+                : 1.0;
+
+            // 1. Draw Grouphead & Bottomless Portafilter at top
+            const pfY = 48;
+            // Metallic grouphead mount
+            const metalGrad = ctx.createLinearGradient(cx - 55, pfY - 35, cx + 55, pfY);
+            metalGrad.addColorStop(0, '#57534e');
+            metalGrad.addColorStop(0.5, '#d6d3d1');
+            metalGrad.addColorStop(1, '#44403c');
+            ctx.fillStyle = metalGrad;
+            ctx.beginPath();
+            ctx.roundRect(cx - 52, pfY - 32, 104, 26, [4, 4, 8, 8]);
+            ctx.fill();
+
+            // Portafilter handle extending right
+            ctx.fillStyle = '#292524';
+            ctx.beginPath();
+            ctx.roundRect(cx + 48, pfY - 22, 85, 12, 6);
+            ctx.fill();
+
+            // Exposed filter basket (Bottomless portafilter view)
+            ctx.fillStyle = '#a8a29e';
+            ctx.beginPath();
+            ctx.roundRect(cx - 42, pfY - 6, 84, 18, [0, 0, 12, 12]);
+            ctx.fill();
+
+            // Coffee Puck texture at bottom of basket
+            ctx.fillStyle = '#3b2314';
+            ctx.fillRect(cx - 36, pfY + 8, 72, 5);
+
+            // 2. Determine Espresso Stream Color & Thickness based on Extraction Yield & Flow
+            // Under-extracted = pale blonde/yellowish; Sweet spot = rich hazelnut tiger-stripe; Over-extracted = very dark ebony
+            let streamColor = '#9c5221';
+            let coreColor = '#d98a3c';
+            if (state.extractionYield < 18.0) {
+                streamColor = '#c27d38';
+                coreColor = '#eab308';
+            } else if (state.extractionYield > 22.2) {
+                streamColor = '#2e1508';
+                coreColor = '#5c2d10';
+            }
+
+            const cupTopY = 195;
+            const cupBottomY = 295;
+            const cupWidthTop = 104;
+            const cupWidthBottom = 74;
+
+            // Calculate liquid level inside glass
+            const maxLiquidHeight = 76;
+            const fillNorm = Math.min(1, (state.beverageWeight / 65) * progressRatio);
+            const liquidHeight = Math.max(10, maxLiquidHeight * fillNorm);
+            const liquidSurfaceY = cupBottomY - 6 - liquidHeight;
+
+            // 3. Draw Flowing Espresso Stream ("Mouse Tail" / Mäuseschwänzchen)
+            const isPreInfusion = state.isTimedPull && state.shotElapsed < 3.5;
+
+            if (!isPreInfusion) {
+                const streamThickness = Math.max(2.2, Math.min(11, state.flowRate * 2.6));
+
+                // Left & Right basket streams converging into center cone
+                ctx.save();
+                const streamGrad = ctx.createLinearGradient(cx, pfY + 12, cx, liquidSurfaceY);
+                streamGrad.addColorStop(0, '#2e1508');
+                streamGrad.addColorStop(0.35, streamColor);
+                streamGrad.addColorStop(1, coreColor);
+
+                ctx.fillStyle = streamGrad;
+                ctx.beginPath();
+                ctx.moveTo(cx - 22, pfY + 12);
+                ctx.quadraticCurveTo(cx - streamThickness / 2, pfY + 48, cx - streamThickness / 2, liquidSurfaceY);
+                ctx.lineTo(cx + streamThickness / 2, liquidSurfaceY);
+                ctx.quadraticCurveTo(cx + streamThickness / 2, pfY + 48, cx + 22, pfY + 12);
+                ctx.closePath();
+                ctx.fill();
+
+                // Tiger-striping shimmer lines inside the stream
+                const timeOffset = (performance.now() * 0.08 * state.flowRate) % 24;
+                ctx.strokeStyle = 'rgba(245, 195, 120, 0.45)';
+                ctx.lineWidth = 1.2;
+                for (let y = pfY + 25 + timeOffset; y < liquidSurfaceY - 10; y += 18) {
+                    ctx.beginPath();
+                    ctx.moveTo(cx, y);
+                    ctx.lineTo(cx, y + 8);
+                    ctx.stroke();
+                }
+
+                // Channeling Spritzer jets if channelingIndex is high
+                if (state.channelingIndex > 0.18) {
+                    ctx.strokeStyle = 'rgba(217, 119, 6, 0.65)';
+                    ctx.lineWidth = 1.2;
+                    const jitter = Math.sin(performance.now() * 0.05) * 14;
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 16, pfY + 13);
+                    ctx.lineTo(cx - 38 + jitter, pfY + 95);
+                    ctx.moveTo(cx + 18, pfY + 13);
+                    ctx.lineTo(cx + 42 - jitter, pfY + 85);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            } else {
+                // Pre-infusion droplets forming on basket bottom
+                ctx.fillStyle = '#78350f';
+                for (let dx = -24; dx <= 24; dx += 12) {
+                    ctx.beginPath();
+                    ctx.arc(cx + dx, pfY + 14, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 4. Steam wisps rising based on Water Temperature
+            const steamIntensity = Math.max(0.1, (state.temp - 85) / 13);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.06 + steamIntensity * 0.14})`;
+            ctx.lineWidth = 2;
+            const wavePhase = performance.now() * 0.003;
+            for (let i = -1; i <= 1; i += 2) {
+                ctx.beginPath();
+                const startX = cx + i * 24;
+                ctx.moveTo(startX, cupTopY + 10);
+                ctx.bezierCurveTo(
+                    startX + Math.sin(wavePhase + i) * 12, cupTopY - 25,
+                    startX - Math.cos(wavePhase) * 12, cupTopY - 55,
+                    startX + Math.sin(wavePhase) * 8, cupTopY - 85
+                );
+                ctx.stroke();
+            }
+
+            // 5. Draw Espresso Liquid & Crema inside Double-Walled Glass
+            ctx.save();
+            // Clip path matching internal cup contour
+            ctx.beginPath();
+            ctx.moveTo(cx - cupWidthTop / 2 + 6, cupTopY + 5);
+            ctx.lineTo(cx - cupWidthBottom / 2 + 6, cupBottomY - 6);
+            ctx.quadraticCurveTo(cx, cupBottomY + 2, cx + cupWidthBottom / 2 - 6, cupBottomY - 6);
+            ctx.lineTo(cx + cupWidthTop / 2 - 6, cupTopY + 5);
+            ctx.closePath();
+            ctx.clip();
+
+            // Dark Espresso Body
+            const bodyGrad = ctx.createLinearGradient(cx, liquidSurfaceY, cx, cupBottomY);
+            if (state.extractionYield < 18.0) {
+                bodyGrad.addColorStop(0, '#78350f');
+                bodyGrad.addColorStop(1, '#3b1906');
+            } else if (state.extractionYield <= 22.0) {
+                bodyGrad.addColorStop(0, '#451a03');
+                bodyGrad.addColorStop(1, '#1c0a00');
+            } else {
+                bodyGrad.addColorStop(0, '#1c0d06');
+                bodyGrad.addColorStop(1, '#090402');
+            }
+
+            ctx.fillStyle = bodyGrad;
+            ctx.fillRect(cx - 60, liquidSurfaceY, 120, cupBottomY - liquidSurfaceY + 10);
+
+            // Crema Layer at Top of Liquid
+            const cremaThickness = Math.max(4, Math.min(18, (state.pressure / 9) * (state.tds * 1.1) * progressRatio));
+            const cremaGrad = ctx.createLinearGradient(cx - 45, liquidSurfaceY, cx + 45, liquidSurfaceY + cremaThickness);
+            if (state.extractionYield < 18.0) {
+                // Thin pale blonde crema
+                cremaGrad.addColorStop(0, '#fde68a');
+                cremaGrad.addColorStop(1, '#b45309');
+            } else if (state.extractionYield <= 22.0) {
+                // Hazelnut golden crema with reddish-brown tiger mottling
+                cremaGrad.addColorStop(0, '#d97706');
+                cremaGrad.addColorStop(0.5, '#f59e0b');
+                cremaGrad.addColorStop(1, '#92400e');
+            } else {
+                // Dark burnt ring crema
+                cremaGrad.addColorStop(0, '#78350f');
+                cremaGrad.addColorStop(0.5, '#b45309');
+                cremaGrad.addColorStop(1, '#451a03');
+            }
+
+            ctx.fillStyle = cremaGrad;
+            ctx.fillRect(cx - 60, liquidSurfaceY, 120, cremaThickness);
+            ctx.restore();
+
+            // 6. Draw Glassware Outline & Reflections
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(cx - cupWidthTop / 2, cupTopY);
+            ctx.lineTo(cx - cupWidthBottom / 2, cupBottomY);
+            ctx.quadraticCurveTo(cx, cupBottomY + 8, cx + cupWidthBottom / 2, cupBottomY);
+            ctx.lineTo(cx + cupWidthTop / 2, cupTopY);
+            ctx.stroke();
+
+            // Rim ellipse
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.ellipse(cx, cupTopY, cupWidthTop / 2, 6, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Glass volume measurement ticks (30ml, 60ml)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.font = '9px JetBrains Mono, monospace';
+            ctx.fillText('— 60ml', cx + 18, cupBottomY - 62);
+            ctx.fillText('— 30ml', cx + 18, cupBottomY - 34);
+
+            // Digital Scale Platform beneath cup
+            ctx.fillStyle = '#1c1917';
+            ctx.strokeStyle = '#44403c';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(cx - 64, cupBottomY + 6, 128, 14, 4);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.restore();
+            requestAnimationFrame(animateEspressoStream);
+        }
+
+        function applyPreset(presetName) {
+            if (presetName === 'sweetspot') {
+                state.grind = 250;
+                state.temp = 93.0;
+                state.pressure = 9.0;
+                state.shotTime = 28;
+            } else if (presetName === 'sour') {
+                state.grind = 345;
+                state.temp = 88.5;
+                state.pressure = 8.5;
+                state.shotTime = 20;
+            } else if (presetName === 'bitter') {
+                state.grind = 185;
+                state.temp = 96.5;
+                state.pressure = 10.5;
+                state.shotTime = 38;
+            } else if (presetName === 'turbo') {
+                state.grind = 315;
+                state.temp = 94.0;
+                state.pressure = 6.0;
+                state.shotTime = 17;
+            }
+
+            els.grindSlider.value = state.grind;
+            els.tempSlider.value = state.temp;
+            els.pressureSlider.value = state.pressure;
+            els.timeSlider.value = state.shotTime;
+
+            startTimedShot();
+            updateUI();
+        }
+
+        function startTimedShot() {
+            state.shotElapsed = 0.0;
+            state.isTimedPull = true;
+            els.pullShotBtn.classList.add('extracting-pulse');
+            els.pullShotBtnText.textContent = 'Extraktion läuft...';
+        }
+
+        function switchChartTab(tab) {
+            state.activeChartTab = tab;
+            const controlContainer = document.getElementById('chartContainerControl');
+            const flowContainer = document.getElementById('chartContainerFlow');
+            const btnControl = document.getElementById('tabBtnControl');
+            const btnFlow = document.getElementById('tabBtnFlow');
+
+            if (tab === 'control') {
+                controlContainer.classList.remove('hidden');
+                flowContainer.classList.add('hidden');
+                btnControl.className = 'px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition';
+                btnFlow.className = 'px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition';
+                drawControlChart();
+            } else {
+                controlContainer.classList.add('hidden');
+                flowContainer.classList.remove('hidden');
+                btnFlow.className = 'px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition';
+                btnControl.className = 'px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition';
+                drawFlowChart();
+            }
+        }
+
+        // Attach Event Listeners to Sliders
+        els.grindSlider.addEventListener('input', (e) => {
+            state.grind = parseFloat(e.target.value);
+            updateUI();
+        });
+
+        els.tempSlider.addEventListener('input', (e) => {
+            state.temp = parseFloat(e.target.value);
+            updateUI();
+        });
+
+        els.pressureSlider.addEventListener('input', (e) => {
+            state.pressure = parseFloat(e.target.value);
+            updateUI();
+        });
+
+        els.timeSlider.addEventListener('input', (e) => {
+            state.shotTime = parseInt(e.target.value, 10);
+            updateUI();
+        });
+
+        window.addEventListener('resize', () => {
+            drawControlChart();
+            drawFlowChart();
+        });
+
+        // Start application on window load
+        window.onload = function () {
+            updateUI();
+            animateEspressoStream();
+        };
+    </script>
+</body>
+</html>
