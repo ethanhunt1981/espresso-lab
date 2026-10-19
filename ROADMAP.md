@@ -67,7 +67,12 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 
 ## Phase 5 — Verfeinerung (nach dem ersten Deployment)
 
-- [ ] Mehrfach-Ergebnisse pro Kaffee: Mittelwerte + Abweichung darstellen
+- [x] **Mehrfach-Ergebnisse pro Kaffee: Mittelwerte (Ø) darstellen** —
+      Einträge desselben Kaffees (Marke + Name, case-insensitiv) werden
+      gruppiert; die Karte zeigt den **neuesten Shot** mit Accent
+      „Neuester Shot"-Präfix, Ergebnis-Chips zeigen bei n≥2 den
+      **Ø-Mittelwert** über alle Shots + einen „N Shots"-Chip
+      *(Abweichungen/Spannweite: später bei Bedarf)*
 - [ ] „Vergleichen": 2–3 Kaffee parallel (Einstellungen + Geschmack)
 - [ ] Bewertungen am Profil (Daumen hoch/runter, anonym, Missbrauch begrenzt)
 - [ ] Mod-Features: eigene Einträge bearbeiten/löschen

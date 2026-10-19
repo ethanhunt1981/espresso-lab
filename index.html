@@ -1651,11 +1651,27 @@
             renderCoffeeLibrary();
         }
 
+        // Phase 5.1: Einträge desselben Kaffees (Marke + Name) gruppieren —
+        // sichtbar ist der neueste Shot (First entry, Liste ist desc-sortiert),
+        // die Ergebnis-Chips zeigen bei n≥2 Mittelwerte (Ø) über alle Shots.
+        function groupCoffeeProfiles(list) {
+            const groups = new Map();
+            list.forEach((p) => {
+                const key = String(p.brand || '').trim().toLowerCase().replace(/\s+/g, ' ') +
+                            '||' + String(p.coffee_name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(p);
+            });
+            return Array.from(groups.values());
+        }
+
         function renderCoffeeLibrary() {
             els.communityGrid.innerHTML = '';
             if (!communityCoffeeList.length) return;
 
-            communityCoffeeList.forEach((p) => {
+            groupCoffeeProfiles(communityCoffeeList).forEach((members) => {
+                const p = members[0];
+                const nShots = members.length;
                 const card = document.createElement('div');
                 card.className = 'rounded-xl bg-stone-950/80 border border-stone-800 p-3 flex flex-col gap-2 hover:border-amber-700/50 transition';
 
@@ -1687,7 +1703,7 @@
 
                 const settings = document.createElement('div');
                 settings.className = 'text-[11px] font-mono text-stone-300 bg-stone-900/70 rounded-lg px-2 py-1.5 leading-relaxed';
-                settings.textContent = `${Math.round(p.grind_microns || state.grind)} µm · ${Number(p.temp_c || state.temp).toFixed(1)} °C · ${Number(p.pressure_bar || state.pressure).toFixed(1)} bar · ${Math.round(p.shot_time_s || state.shotTime)} s`;
+                settings.textContent = (nShots > 1 ? 'Neuester Shot · ' : '') + `${Math.round(p.grind_microns || state.grind)} µm · ${Number(p.temp_c || state.temp).toFixed(1)} °C · ${Number(p.pressure_bar || state.pressure).toFixed(1)} bar · ${Math.round(p.shot_time_s || state.shotTime)} s`;
                 card.appendChild(settings);
 
                 const results = document.createElement('div');
@@ -1696,18 +1712,27 @@
                 // '—' statt kaputter Anzeige (Security-Hardening Fix #4)
                 const fmtChip = (val, digits, suffix) =>
                     (val != null && Number.isFinite(Number(val))) ? Number(val).toFixed(digits) + suffix : null;
-                const chipDefs = [
-                    ['EY', fmtChip(p.ey_percent, 1, '%')],
-                    ['TDS', fmtChip(p.tds_percent, 1, '%')],
-                    ['Süße', fmtChip(p.sweetness, 1, '/10')],
-                    ['Säure', fmtChip(p.acidity, 1, '/10')],
-                    ['Bitter', fmtChip(p.bitterness, 1, '/10')]
-                ];
+                // Phase 5.1: bei mehreren Shots am selben Kaffee → Mittelwerte (Ø)
+                const valueChip = (field, digits, suffix) => {
+                    if (nShots === 1) return fmtChip(p[field], digits, suffix);
+                    const nums = members.map((m) => Number(m[field])).filter(Number.isFinite);
+                    if (!nums.length) return null;
+                    return 'Ø ' + (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(digits) + suffix;
+                };
+                const chipDefs = [];
+                if (nShots > 1) chipDefs.push([nShots + ' Shots', '']);
+                chipDefs.push(
+                    ['EY', valueChip('ey_percent', 1, '%')],
+                    ['TDS', valueChip('tds_percent', 1, '%')],
+                    ['Süße', valueChip('sweetness', 1, '/10')],
+                    ['Säure', valueChip('acidity', 1, '/10')],
+                    ['Bitter', valueChip('bitterness', 1, '/10')]
+                );
                 chipDefs.forEach(([label, value]) => {
                     if (value == null) return;
                     const chip = document.createElement('span');
                     chip.className = 'px-1.5 py-0.5 rounded bg-stone-800/80 text-[10px] font-mono text-stone-300 border border-stone-700';
-                    chip.textContent = `${label} ${value}`;
+                    chip.textContent = `${label}${value ? ' ' + value : ''}`;
                     results.appendChild(chip);
                 });
                 card.appendChild(results);
