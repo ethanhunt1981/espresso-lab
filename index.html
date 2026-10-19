@@ -1656,6 +1656,24 @@
             compareSelection = compareSelection.filter((sel) =>
                 communityCoffeeList.some((p) => keyOf(p) === keyOf(sel)));
 
+            // Phase 5.3: 👍-Stimmen zu den geladenen Profilen laden
+            if (!remoteFailed && coffeeDb && communityCoffeeList.length) {
+                const ids = communityCoffeeList.filter((p) => p.id).map((p) => p.id);
+                if (ids.length) {
+                    try {
+                        const { data: voteRows, error: voteErr } = await coffeeDb
+                            .from('coffee_votes').select('coffee_id').in('coffee_id', ids);
+                        if (!voteErr && voteRows) {
+                            const tally = {};
+                            voteRows.forEach((v) => {
+                                tally[v.coffee_id] = (tally[v.coffee_id] || 0) + 1;
+                            });
+                            communityCoffeeList.forEach((p) => { p._votes = tally[p.id] || 0; });
+                        }
+                    } catch (e) { /* Stimmen optional — kein Blocker */ }
+                }
+            }
+
             renderCoffeeLibrary();
             renderComparePanel();
         }
@@ -1672,6 +1690,67 @@
                 groups.get(key).push(p);
             });
             return Array.from(groups.values());
+        }
+
+        // ------------------------------------------------------------------
+        // Phase 5.3: Bewertungen (👍) — anonym, eine Stimme pro Browser
+        // ------------------------------------------------------------------
+        const MY_VOTES_KEY = 'espressoLabMyVotes';
+        const VOTER_TOKEN_KEY = 'espressoLabVoterToken';
+
+        function getMyVotes() {
+            try { return new Set(JSON.parse(localStorage.getItem(MY_VOTES_KEY) || '[]')); }
+            catch (e) { return new Set(); }
+        }
+
+        function addMyVote(id) {
+            try {
+                const s = getMyVotes();
+                s.add(String(id));
+                localStorage.setItem(MY_VOTES_KEY, JSON.stringify(Array.from(s)));
+            } catch (e) { /* Fallback: kein lokales Merken */ }
+        }
+
+        function getVoterToken() {
+            try {
+                let t = localStorage.getItem(VOTER_TOKEN_KEY);
+                if (!t) {
+                    const bytes = new Uint8Array(16);
+                    crypto.getRandomValues(bytes);
+                    t = Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+                    localStorage.setItem(VOTER_TOKEN_KEY, t);
+                }
+                return t;
+            } catch (e) { return 'anonymous-' + Date.now().toString(36); }
+        }
+
+        async function voteForCoffee(p) {
+            if (!coffeeDb || !p.id) {
+                showToast('Bewerten ist nur für veröffentlichte Community-Profile möglich.', true);
+                return;
+            }
+            const myVotes = getMyVotes();
+            if (myVotes.has(String(p.id))) {
+                showToast('Du hast diesen Kaffee bereits bewertet. 👍');
+                return;
+            }
+            const { error } = await coffeeDb.from('coffee_votes')
+                .insert({ coffee_id: p.id, voter_token: getVoterToken() });
+            if (error) {
+                // Doppelt-Vote durch DB-Unique-Constraint abgefangen → trotzdem freundlich
+                if (error.code === '23505' || String(error.message || '').toLowerCase().includes('duplicate')) {
+                    addMyVote(String(p.id));
+                    renderCoffeeLibrary();
+                    showToast('👍 Danke — deine Stimme wurde längst gezählt.');
+                    return;
+                }
+                showToast('Bewertung fehlgeschlagen: ' + (error.message || 'Fehler'), true);
+                return;
+            }
+            addMyVote(String(p.id));
+            p._votes = (p._votes || 0) + 1;
+            renderCoffeeLibrary();
+            showToast('👍 Danke für deine Bewertung!');
         }
 
         // ------------------------------------------------------------------
@@ -1865,6 +1944,25 @@
                     results.appendChild(chip);
                 });
                 card.appendChild(results);
+
+                // Phase 5.3: 👍-Bewertung — Summe über alle Shots der Gruppe,
+                // die eigene Stimme geht auf den neuesten Shot (Kartenspitze)
+                if (coffeeDb && p.id) {
+                    const groupVotes = members.reduce((s, m) => s + (Number(m._votes) || 0), 0);
+                    const myVotes = getMyVotes();
+                    const already = members.some((m) => m.id && myVotes.has(String(m.id)));
+                    const voteRow = document.createElement('div');
+                    voteRow.className = 'flex items-center gap-2';
+                    const voteBtn = document.createElement('button');
+                    voteBtn.className = already
+                        ? 'px-2 py-1 rounded-lg text-[11px] font-mono bg-emerald-900/40 text-emerald-300 border border-emerald-700/50 cursor-not-allowed'
+                        : 'px-2 py-1 rounded-lg text-[11px] font-mono bg-stone-800/80 text-stone-300 border border-stone-700 hover:bg-stone-700 hover:text-emerald-300 transition cursor-pointer';
+                    voteBtn.textContent = '👍' + (groupVotes > 0 ? ' ' + groupVotes : '');
+                    voteBtn.title = already ? 'Du hast dieses Profil bereits bewertet' : 'Gute Referenz-Einstellungen bedanken';
+                    voteBtn.onclick = () => voteForCoffee(p);
+                    voteRow.appendChild(voteBtn);
+                    card.appendChild(voteRow);
+                }
 
                 if (p.notes) {
                     const note = document.createElement('p');

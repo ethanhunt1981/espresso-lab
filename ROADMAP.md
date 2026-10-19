@@ -77,7 +77,14 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
       (ausgewählte Karten erhalten amber-Rahmen), Vergleichstabelle über der
       Bibliothek mit allen BoPoln- + Brühparameter + Ergebnissen + Autor;
       Auswahl bereinigt sich selbst bei Suche/Filter, ✕ schließt den Modus
-- [ ] Bewertungen am Profil (Daumen hoch/runter, anonym, Missbrauch begrenzt)
+- [x] **Bewertungen am Profil (Daumen 👍)** — anonym, eine Stimme pro
+      Browser; SQL `supabase/schema_update_v2.2_votes.sql` ausführen
+      (Tabelle `coffee_votes` mit RLS, Unique-Doppelvotenschutz
+      `(coffee_id, voter_token)`, Rate-Limit 20/min); UI: 👍-Button pro
+      Karte mit Zähler (Summe über alle Shots der Gruppe), eigene Stimme
+      wird via `espressoLabMyVotes` gemerkt, Token aus
+      `crypto.getRandomValues` (keine PII). Daumen runter bewusst weggelassen
+      (positiver Fokus statt Negativ-Bewertungs-Wettbewerb)
 - [ ] Mod-Features: eigene Einträge bearbeiten/löschen
 - [ ] Spam-Schutz verfeinern (z.B. Cloudflare Turnstile)
 - [ ] Übersetzung der UI (EN-Variante parallel zum DE-Original)
