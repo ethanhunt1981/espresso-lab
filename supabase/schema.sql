@@ -1,6 +1,7 @@
 -- =====================================================================
 -- Espresso Lab — Community-Kaffee-Bibliothek
--- SQL-Schema v2 (gehärtet, Security-Hardening nach LLM Security Council)
+-- SQL-Schema v2.1 (gehärtet, Security-Hardening nach LLM Security Council
+-- + Supabase Security Advisor)
 --
 -- Fixes gegenüber v1:
 --   * RLS ZWINGEND aktiviert (Critical Fix #1)  — v1 verließ sich auf
@@ -14,13 +15,38 @@
 --   * Expliziter Entzug von UPDATE/DELETE/TRUNCATE für anon/authenticated
 --     (Defense in Depth, zusätzlich zu RLS).
 --
+-- Fixes in v2.1 (Supabase Security Advisor):
+--   * pg_trgm lebt im 'extensions'-Schema statt 'public' (Best Practice)
+--   * check_coffee_rate_limit(): EXECUTE für public/anon/authenticated
+--     entzogen (Funktion ist nur als interner Trigger aktiv)
+--   * search_path der SECURITY DEFINER-Funktion fixiert auf
+--     public, extensions
+--   * rls_auto_enable() (falls vorhanden) analog gesperrt
+--
 -- Ausführen: Supabase Dashboard → SQL Editor → New Query → einfügen → Run
 -- Idempotent: kann sowohl auf frischem Projekt als auch zur Nachrüstung
--- einer bestehenden v1-Tabelle ausgeführt werden.
+-- einer bestehenden Tabelle ausgeführt werden.
 -- =====================================================================
 
 -- 1. Erweiterung für schnelle ILIKE '%...%'-Suche (Fix #5)
-create extension if not exists pg_trgm;
+--    Best Practice Supabase: Extensions NACH MÖGLICHKEIT ins 'extensions'-Schema
+create schema if not exists extensions;
+create extension if not exists pg_trgm with schema extensions;
+
+-- Falls pg_trgm bereits aus einer älteren Version im 'public'-Schema
+-- installiert ist: sauber nach 'extensions' umziehen (OID-Referenzen
+-- des Trigram-Index bleiben dabei erhalten, kein Rebuild nötig).
+do $$
+begin
+    if exists (
+        select 1
+        from pg_extension e
+        join pg_namespace n on n.oid = e.extnamespace
+        where e.extname = 'pg_trgm' and n.nspname = 'public'
+    ) then
+        alter extension pg_trgm set schema extensions;
+    end if;
+end $$;
 
 -- 2. Tabelle für Kaffee-Profile (jede Zeile = ein Shots-Eintrag mit
 --    Bohnen-Daten, verwendeten Einstellungen und erzieltem Ergebnis)
@@ -115,8 +141,7 @@ alter table public.coffees
 drop index if exists public.coffees_search_idx;
 drop index if exists public.coffees_search_trgm_idx;
 create index coffees_search_trgm_idx
-    on public.coffees using gin (search_text gin_trgm_ops);
-
+    on public.coffees using gin (search_text extensions.gin_trgm_ops);
 create index if not exists coffees_created_idx on public.coffees (created_at desc);
 create index if not exists coffees_brand_idx   on public.coffees (lower(brand));
 
@@ -183,10 +208,31 @@ create trigger enforce_coffee_rate_limit
     before insert on public.coffees
     for each row execute function public.check_coffee_rate_limit();
 
+-- SECURITY DEFINER-Funktion härten (Supabase Security Advisor):
+-- EXECUTE komplett entziehen — die Funktion läuft nur intern als Trigger.
+revoke execute on function public.check_coffee_rate_limit() from public;
+revoke execute on function public.check_coffee_rate_limit() from anon;
+revoke execute on function public.check_coffee_rate_limit() from authenticated;
+alter function public.check_coffee_rate_limit() set search_path = public, extensions;
+
+-- rls_auto_enable() (falls von Supabase angelegt) analog sperren
+do $$
+begin
+    if exists (
+        select 1 from pg_proc p
+        join pg_namespace n on p.pronamespace = n.oid
+        where n.nspname = 'public' and p.proname = 'rls_auto_enable'
+    ) then
+        execute 'revoke execute on function public.rls_auto_enable() from public, anon, authenticated;';
+        execute 'alter function public.rls_auto_enable() set search_path = public, extensions;';
+    end if;
+end $$;
+
 -- =====================================================================
 -- Nach dem Ausführen verifizieren:
 --   → Dashboard → Database → Tables → coffees → Badge „RLS Enabled"
---   → Module → pg_trgm ist aktiv
+--   → Extensions (pg_trgm) liegen im `extensions`-Schema, nicht in `public`
+--   → Security Advisor (Dashboard ⇢ Advisors): 0 Errors, 0 Warnings
 --   → Test: mit dem anon key per REST einen INSERT mit 10MB-Text
 --     oder DELETE-Versuch senden — beides muss fehlschlagen.
 -- =====================================================================
