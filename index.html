@@ -511,6 +511,10 @@
                             <button onclick="loadCoffeeLibrary()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-stone-200 border border-stone-700 hover:bg-stone-700 transition" title="Liste aktualisieren">
                                 ↻ Neu laden
                             </button>
+                            <button onclick="document.getElementById('communityImportInput').click()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-stone-200 border border-stone-700 hover:bg-stone-700 transition" title="Profile aus JSON-Datei importieren">
+                                📥 JSON-Import
+                            </button>
+                            <input id="communityImportInput" type="file" accept=".json,application/json" class="hidden" onchange="handleJsonImport(event)">
                         </div>
                         <p id="communityStatus" class="text-[11px] text-stone-400 mb-3 hidden"></p>
                         <div id="communityGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1"></div>
@@ -720,6 +724,7 @@
             cpProcess: document.getElementById('cpProcess'),
             cpNotes: document.getElementById('cpNotes'),
             cpAuthor: document.getElementById('cpAuthor'),
+            communityImportInput: document.getElementById('communityImportInput'),
             espressoToast: document.getElementById('espressoToast')
         };
 
@@ -1766,6 +1771,13 @@
                 shareBtn.onclick = () => copyProfileShareLink(p);
                 actions.appendChild(shareBtn);
 
+                const exportBtn = document.createElement('button');
+                exportBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-stone-300 border border-stone-700 hover:bg-stone-700 transition cursor-pointer';
+                exportBtn.textContent = '⬇';
+                exportBtn.title = 'Profil als JSON-Datei herunterladen';
+                exportBtn.onclick = () => exportProfileJson(p);
+                actions.appendChild(exportBtn);
+
                 if (p._local && coffeeDb === null) {
                     const delBtn = document.createElement('button');
                     delBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs bg-red-950/60 text-red-300 border border-red-800/50 hover:bg-red-900 transition cursor-pointer';
@@ -1985,6 +1997,136 @@
             ta.select();
             try { document.execCommand('copy'); done(); } catch (e) { showToast('Kopieren nicht möglich — Link steht in der Adresszeile.', true); }
             document.body.removeChild(ta);
+        }
+
+        // ---- JSON Export / Import (Phase 4) ----
+        function downloadJsonFile(data, filename) {
+            try {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+            } catch (e) {
+                showToast('Download fehlgeschlagen — Browser-Speicherlaufwerk erlaubt den Export nicht.', true);
+            }
+        }
+
+        function exportProfileJson(p) {
+            const payload = {
+                _meta: { app: 'espresso-lab', export_version: 1 },
+                brand: String(p.brand || '').slice(0, 80),
+                coffee_name: String(p.coffee_name || '').slice(0, 120),
+                origin: String(p.origin || '').slice(0, 120) || undefined,
+                roast_level: p.roast_level && ROAST_LABELS[p.roast_level] ? p.roast_level : 'mittel',
+                process: String(p.process || '').slice(0, 60) || undefined,
+                dose: Number(p.dose) || 18.0,
+                grind_microns: Math.round(Number(p.grind_microns)) || 250,
+                temp_c: Number(p.temp_c) || 93.0,
+                pressure_bar: Number(p.pressure_bar) || 9.0,
+                shot_time_s: Math.round(Number(p.shot_time_s)) || 28,
+                ey_percent: Number.isFinite(Number(p.ey_percent)) ? Number(p.ey_percent) : undefined,
+                tds_percent: Number.isFinite(Number(p.tds_percent)) ? Number(p.tds_percent) : undefined,
+                acidity: Number.isFinite(Number(p.acidity)) ? Number(p.acidity) : undefined,
+                sweetness: Number.isFinite(Number(p.sweetness)) ? Number(p.sweetness) : undefined,
+                bitterness: Number.isFinite(Number(p.bitterness)) ? Number(p.bitterness) : undefined,
+                notes: String(p.notes || '').slice(0, 500) || undefined,
+                author_name: String(p.author_name || '').slice(0, 40) || undefined
+            };
+            const fileName = 'espresso-lab_' +
+                String(payload.brand || 'profil').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '_' +
+                String(payload.coffee_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.json';
+            downloadJsonFile(payload, fileName);
+            showToast('⬇ Profil als JSON-Datei exportiert.');
+        }
+
+        // Validiere & normalisiere ein importierendes Profil passend zur DB (schema v2 Constraints)
+        function sanitizeProfileForImport(raw) {
+            if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false, reason: 'kein Profil-Objekt' };
+            const brand = String(raw.brand || '').trim().slice(0, 80);
+            const coffeeName = String(raw.coffee_name || raw.coffeeName || '').trim().slice(0, 120);
+            if (brand.length < 2 || coffeeName.length < 2) return { ok: false, reason: 'Marke/Name fehlen oder zu kurz' };
+
+            const clampNum = (v, min, max, dflt) => {
+                const n = Number(v);
+                return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : dflt;
+            };
+            const clampOpt = (v, min, max) => {
+                const n = Number(v);
+                return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : null;
+            };
+            const roast = raw.roast_level && ROAST_LABELS[raw.roast_level] ? raw.roast_level : 'mittel';
+
+            return {
+                ok: true,
+                profile: {
+                    brand: brand,
+                    coffee_name: coffeeName,
+                    origin: String(raw.origin || '').trim().slice(0, 120) || null,
+                    roast_level: roast,
+                    process: String(raw.process || '').trim().slice(0, 60) || null,
+                    dose: clampNum(raw.dose, 5, 30, 18.0),
+                    grind_microns: Math.round(clampNum(raw.grind_microns, 150, 400, 250)),
+                    temp_c: clampNum(raw.temp_c, 86, 98, 93.0),
+                    pressure_bar: clampNum(raw.pressure_bar, 3, 12, 9.0),
+                    shot_time_s: Math.round(clampNum(raw.shot_time_s, 15, 45, 28)),
+                    ey_percent: clampOpt(raw.ey_percent, 5, 35),
+                    tds_percent: clampOpt(raw.tds_percent, 1, 25),
+                    acidity: clampOpt(raw.acidity, 0, 10),
+                    sweetness: clampOpt(raw.sweetness, 0, 10),
+                    bitterness: clampOpt(raw.bitterness, 0, 10),
+                    notes: String(raw.notes || '').trim().slice(0, 500) || null,
+                    author_name: String(raw.author_name || '').trim().slice(0, 40) || null
+                }
+            };
+        }
+
+        async function importProfilesSequentially(profiles) {
+            let published = 0, local = 0, skipped = 0;
+            for (const raw of profiles) {
+                const check = sanitizeProfileForImport(raw);
+                if (!check.ok) { skipped++; continue; }
+                if (coffeeDb) {
+                    const { error } = await coffeeDb.from('coffees').insert({ ...check.profile, created_at: new Date().toISOString() });
+                    if (!error) { published++; continue; }
+                    // Rate-Limit oder Netzwerkfehler: demise fallen ideal auf lokal
+                    if (error.message && error.message.toLowerCase().includes('rate limit')) {
+                        if (storeLocalProfile(check.profile)) { local++; } else { skipped++; }
+                    } else {
+                        if (storeLocalProfile(check.profile)) { local++; } else { skipped++; }
+                    }
+                } else {
+                    if (storeLocalProfile(check.profile)) { local++; } else { skipped++; }
+                }
+            }
+            return { published, local, skipped };
+        }
+
+        function handleJsonImport(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = ''; // erlauben, dieselbe Datei erneut zu wählen
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onerror = () => showToast('Import: Datei konnte nicht gelesen werden.', true);
+            reader.onload = async () => {
+                let parsed;
+                try {
+                    parsed = JSON.parse(String(reader.result));
+                } catch (e) {
+                    showToast('Import: Keine gültige JSON-Datei.', true);
+                    return;
+                }
+                const rows = Array.isArray(parsed) ? parsed : [parsed];
+                const result = await importProfilesSequentially(rows);
+                loadCoffeeLibrary();
+                showToast(`Import fertig: ${result.published} veröffentlicht, ${result.local} lokal gespeichert${result.skipped ? `, ${result.skipped} übersprungen` : ''}.`);
+            };
+            reader.readAsText(file);
         }
 
         function checkSharedProfileFromUrl() {

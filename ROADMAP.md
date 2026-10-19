@@ -53,14 +53,17 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
       noch nicht — Vergleichsansicht folgt in Phase 5)
 - [x] „Profil ohne Shot anlegen" (Bohne zuerst, Ergebnisse später)
 
-## Phase 4 — Fallback & Teilen (nicht von Supabase abhängig) — teilweise
+## Phase 4 — Fallback & Teilen (nicht von Supabase abhängig) ✅
 
 - [x] localStorage-Fallback: Profile lokal speichern (Tag „nur lokal",
       inkl. Löschen solange noch kein Supabase-Write gelang)
 - [x] Share-Link: Profil Base64-codiert als URL-Parameter (`#profil=...`) —
       Absender kann teilen, auch ohne Backend-Eintrag; Empfänger öffnet den
       Link → Regler werden automatisch gesetzt
-- [ ] Export/Import als JSON-Datei
+- [x] Export/Import als JSON-Datei: ⬇-Button pro Karte (Download),
+      📥-Import in der Bibliothek-Leiste (mehrere Profile pro Datei möglich);
+      Import-Profile werden vor dem Speichern auf die DB-Constraints
+      validiert/klemmen — Rate-Limit-Überläufe landen lokal mit „nur lokal"-Tag
 
 ## Phase 5 — Verfeinerung (nach dem ersten Deployment)
 
@@ -80,7 +83,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 | M1 | Phase 0 fertig (Supabase steht) | ✅ erledigt |
 | M2 | Phase 1+2: Bibliothek sichtbar, Profile ladbar | ✅ erledigt |
 | M3 | Phase 3: Speichern funktioniert live | ✅ erledigt |
-| M4 | Phase 4: Fallback + Share-Link | 🔶 fast fertig (JSON-Export offen) |
+| M4 | Phase 4: Fallback + Share-Link + JSON-Export/Import | ✅ erledigt |
 | M6 | 🔒 Security-Hardening: RLS, Constraints, Rate-Limit, Frontend-Härtung | ✅ erledigt & verifiziert (Phase S1+S2) — Details siehe interne Security-Roadmap (privat) |
 | M5 | Öffentlicher Aufruf (Reddit r/espresso, Kaffee-Foren) | offen |
 | M7 | Phase S3: Supply-Chain-Härtung (Versions-Pinning, SRI, CSP) | offen |

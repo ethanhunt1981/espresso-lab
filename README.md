@@ -25,6 +25,7 @@ The Espresso Lab combines barista science with interactive web technology:
   * Publish your coffee (brand, origin, roast level, process) together with the exact brew settings you used (grind, temperature, pressure, shot time) and the results you achieved (EY%, TDS%, taste scores).
   * Browse the library, search by brand/origin/notes, filter by roast level, and load any profile straight into the sliders.
   * Share any profile via link (works even offline, encoded in the URL) or export it.
+  * Export single profiles as JSON files and bulk-import them anywhere (validated against the database constraints on import).
 
 ---
 
