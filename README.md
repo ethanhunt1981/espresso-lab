@@ -33,6 +33,8 @@ The Espresso Lab combines barista science with interactive web technology:
 
 ## 🌍 Community Library — How It Works
 
+The library was publicly announced on Reddit's r/espresso community in October 2026. If you came from that post: welcome, and thanks for sharing your beans and recipes! ☕
+
 The library is powered by a free [Supabase](https://supabase.com) database:
 
 * **Reading and publishing is open to everyone** — no account, no login. Just open the app, dial in your shot, click *"Bohnenprofil der Community hinzufügen"*, and your entry appears instantly.
