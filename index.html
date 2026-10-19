@@ -142,6 +142,36 @@
 
     <!-- Main Content Grid -->
     <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
+
+        <!-- COMMUNITY HIGHLIGHT BANNER — immer sichtbar -->
+        <section id="communityBanner" class="mb-6 relative overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/70 via-espresso-800/50 to-stone-950/90 shadow-xl shadow-amber-900/20">
+            <div class="absolute inset-0 pointer-events-none opacity-20" style="background-image: radial-gradient(circle at 12% 80%, #f59e0b 0, transparent 35%), radial-gradient(circle at 85% 20%, #fcd34d 0, transparent 30%);"></div>
+            <div class="relative px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-900/40 border border-amber-300/40">
+                    <svg class="w-6 h-6 text-amber-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h2 class="text-base sm:text-lg font-bold text-amber-100 flex items-center gap-2">
+                        Community-Kaffee-Bibliothek
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">Jetzt neu!</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-stone-300 mt-0.5">
+                        Entdecke, mit welchen Einstellungen andere Kaffeefans ihre Bohnen bezogen haben — und teile deine eigenen Shots. Ohne Registrierung.
+                    </p>
+                </div>
+                <div class="flex gap-2.5 shrink-0 flex-wrap">
+                    <button onclick="openLibraryFromBanner()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-950 shadow-lg shadow-amber-900/40 transition cursor-pointer">
+                        ☕ Jetzt entdecken
+                    </button>
+                    <button onclick="openSaveProfileModal()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-stone-900/80 text-amber-300 border border-amber-600/50 hover:bg-stone-800 transition cursor-pointer">
+                        Mein Shot teilen
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
             <!-- LEFT COLUMN: Parameter Controls (4 cols) -->
@@ -431,7 +461,7 @@
                 </div>
 
                 <!-- 2. Interactive Charts (Tabs: Brewing Control Chart & Flow Profile) -->
-                <div class="glass-panel rounded-2xl p-5 shadow-xl flex flex-col">
+                <div class="glass-panel rounded-2xl p-5 shadow-xl flex flex-col" id="chartsPanel">
                     <div class="flex items-center justify-between mb-3">
                         <h2 id="chartPanelTitle" class="text-sm font-semibold text-stone-100">Wissenschaftliche Diagramme</h2>
                         <div class="inline-flex rounded-lg bg-stone-900 p-0.5 border border-stone-800">
@@ -441,9 +471,10 @@
                             <button id="tabBtnFlow" onclick="switchChartTab('flow')" class="px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition">
                                 Durchfluss & Extraktion
                             </button>
-                            <button id="tabBtnCommunity" onclick="switchChartTab('community')" class="px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition flex items-center gap-1">
+                            <button id="tabBtnCommunity" onclick="switchChartTab('community')" class="px-2.5 py-1 rounded-md text-xs font-medium text-amber-300 border border-amber-600/40 hover:bg-amber-600/10 transition flex items-center gap-1 relative">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                 Kaffee-Bibliothek
+                                <span class="absolute -top-1.5 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-stone-900 animate-pulse" title="Neu"></span>
                             </button>
                         </div>
                     </div>
@@ -1471,6 +1502,13 @@
             els.pullShotBtnText.textContent = 'Extraktion läuft...';
         }
 
+        // Community-Banner: Bibliothek öffnen und dorthin scrollen
+        function openLibraryFromBanner() {
+            switchChartTab('community');
+            const panel = document.getElementById('chartsPanel');
+            if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function switchChartTab(tab) {
             state.activeChartTab = tab;
             const controlContainer = document.getElementById('chartContainerControl');
@@ -1482,12 +1520,14 @@
             const activeBtnCls = 'px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition';
             const idleBtnCls = 'px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition';
 
+            const btnCommunityIdleCls = 'px-2.5 py-1 rounded-md text-xs font-medium text-amber-300 border border-amber-600/40 hover:bg-amber-600/10 transition flex items-center gap-1 relative';
+
             // Community-Tab braucht die Buttons mit Icon: className includes flex
             btnControl.className = tab === 'control' ? activeBtnCls : idleBtnCls;
             btnFlow.className = tab === 'flow' ? activeBtnCls : idleBtnCls;
             btnCommunity.className = tab === 'community'
-                ? activeBtnCls + ' flex items-center gap-1'
-                : idleBtnCls + ' flex items-center gap-1';
+                ? activeBtnCls + ' flex items-center gap-1 relative'
+                : btnCommunityIdleCls;
 
             controlContainer.classList.toggle('hidden', tab !== 'control');
             flowContainer.classList.toggle('hidden', tab !== 'flow');
