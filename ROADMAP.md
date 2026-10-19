@@ -86,7 +86,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 | M4 | Phase 4: Fallback + Share-Link + JSON-Export/Import | ✅ erledigt |
 | M6 | 🔒 Security-Hardening: RLS, Constraints, Rate-Limit, Frontend-Härtung | ✅ erledigt & verifiziert (Phase S1+S2) — Details siehe interne Security-Roadmap (privat) |
 | M5 | Öffentlicher Aufruf (Reddit r/espresso, Kaffee-Foren) | offen |
-| M7 | Phase S3: Supply-Chain-Härtung (Versions-Pinning, SRI, CSP) | offen |
+| M7 | Phase S3: Supply-Chain-Härtung (Version-Pinning, SRI, CSP) | 🔶 gebaut — Verifikation im Browser ausstehend (Tailwind-Lokal-Build als offener Punkt S3.5) |
 
 ---
 
