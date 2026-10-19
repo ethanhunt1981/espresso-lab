@@ -1618,7 +1618,10 @@
                 const roastFilter = els.communityRoastFilter.value;
                 if (roastFilter) query = query.eq('roast_level', roastFilter);
                 const searchText = els.communitySearch.value.trim();
-                if (searchText.length >= 2) query = query.ilike('search_text', '%' + searchText.toLowerCase() + '%');
+                // Sicherheits-Hardening: SQL-Wildcards (% _ \) entfernen,
+                // damit niemand schadhafte Pattern-Ketten für DoS-Suchen einschleust
+                const safeSearch = searchText.replace(/[%_\\]/g, '').toLowerCase();
+                if (safeSearch.length >= 2) query = query.ilike('search_text', '%' + safeSearch + '%');
                 query = query.order('created_at', { ascending: false }).limit(60);
 
                 const { data, error } = await query;
@@ -1704,12 +1707,16 @@
 
                 const results = document.createElement('div');
                 results.className = 'flex flex-wrap gap-1.5';
+                // Robustes Chip-Formatting: NaN/Extremwerte aus der DB zeigen
+                // '—' statt kaputter Anzeige (Security-Hardening Fix #4)
+                const fmtChip = (val, digits, suffix) =>
+                    (val != null && Number.isFinite(Number(val))) ? Number(val).toFixed(digits) + suffix : null;
                 const chipDefs = [
-                    ['EY', p.ey_percent != null ? Number(p.ey_percent).toFixed(1) + '%' : null],
-                    ['TDS', p.tds_percent != null ? Number(p.tds_percent).toFixed(1) + '%' : null],
-                    ['Süße', p.sweetness != null ? Number(p.sweetness).toFixed(1) + '/10' : null],
-                    ['Säure', p.acidity != null ? Number(p.acidity).toFixed(1) + '/10' : null],
-                    ['Bitter', p.bitterness != null ? Number(p.bitterness).toFixed(1) + '/10' : null]
+                    ['EY', fmtChip(p.ey_percent, 1, '%')],
+                    ['TDS', fmtChip(p.tds_percent, 1, '%')],
+                    ['Süße', fmtChip(p.sweetness, 1, '/10')],
+                    ['Säure', fmtChip(p.acidity, 1, '/10')],
+                    ['Bitter', fmtChip(p.bitterness, 1, '/10')]
                 ];
                 chipDefs.forEach(([label, value]) => {
                     if (value == null) return;
@@ -1779,10 +1786,20 @@
         }
 
         function applyCoffeeProfile(p) {
-            state.grind = Math.min(400, Math.max(150, Math.round(p.grind_microns || state.grind)));
-            state.temp = Math.min(98, Math.max(86, Number(p.temp_c) || state.temp));
-            state.pressure = Math.min(12, Math.max(3, Number(p.pressure_bar) || state.pressure));
-            state.shotTime = Math.min(45, Math.max(15, Math.round(Number(p.shot_time_s) || state.shotTime)));
+            // Nur endliche Zahlen übernehmen — NaN/Extremwerte ausgetauschter
+            // Quellen (URL/DB) fielen sonst ins UI (Fix #4)
+            if (!Number.isFinite(Number(p.grind_microns)) ||
+                !Number.isFinite(Number(p.temp_c)) ||
+                !Number.isFinite(Number(p.pressure_bar)) ||
+                !Number.isFinite(Number(p.shot_time_s))) {
+                showToast('Profil enthält ungültige Werte und wurde nicht geladen.', true);
+                return false;
+            }
+
+            state.grind = Math.min(400, Math.max(150, Math.round(Number(p.grind_microns))));
+            state.temp = Math.min(98, Math.max(86, Number(p.temp_c)));
+            state.pressure = Math.min(12, Math.max(3, Number(p.pressure_bar)));
+            state.shotTime = Math.min(45, Math.max(15, Math.round(Number(p.shot_time_s))));
 
             els.grindSlider.value = state.grind;
             els.tempSlider.value = state.temp;
@@ -1791,7 +1808,10 @@
 
             startTimedShot();
             updateUI();
-            showToast(`Profil geladen: ${p.brand} — ${p.coffee_name}`);
+            const brand = String(p.brand || '').slice(0, 40);
+            const name = String(p.coffee_name || '').slice(0, 60);
+            showToast(`Profil geladen: ${brand} — ${name}`);
+            return true;
         }
 
         // ---- Shot speichern (Modal) ----
@@ -1903,6 +1923,23 @@
         }
 
         // ---- Share-Link ----
+        // Moderne Base64-UTF8-Helfer (Fix #7): ersetzen deprecated
+        // escape()/unescape() durch TextEncoder/TextDecoder
+        function base64UrlEncodeUtf8(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = '';
+            bytes.forEach((b) => { binary += String.fromCharCode(b); });
+            return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function base64UrlDecodeUtf8(encoded) {
+            let s = String(encoded).replace(/-/g, '+').replace(/_/g, '/');
+            while (s.length % 4) s += '=';
+            const binary = atob(s);
+            const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+            return new TextDecoder().decode(bytes);
+        }
+
         function encodeProfileForUrl(profile) {
             const compact = {
                 brand: profile.brand,
@@ -1920,15 +1957,12 @@
                 sweetness: profile.sweetness,
                 bitterness: profile.bitterness
             };
-            return btoa(unescape(encodeURIComponent(JSON.stringify(compact))))
-                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            return base64UrlEncodeUtf8(JSON.stringify(compact));
         }
 
         function decodeProfileFromUrl(encoded) {
             try {
-                let s = encoded.replace(/-/g, '+').replace(/_/g, '/');
-                while (s.length % 4) s += '=';
-                return JSON.parse(decodeURIComponent(escape(atob(s))));
+                return JSON.parse(base64UrlDecodeUtf8(encoded));
             } catch (e) { return null; }
         }
 
@@ -1955,12 +1989,28 @@
 
         function checkSharedProfileFromUrl() {
             if (!location.hash.startsWith('#profil=')) return false;
-            const profile = decodeProfileFromUrl(location.hash.slice('#profil='.length));
-            if (!profile) return false;
-            applyCoffeeProfile(profile);
-            showToast(`Geteiltes Profil geladen: ${profile.brand} — ${profile.coffee_name}`);
-            history.replaceState(null, '', location.pathname); // Hash aufräumen
-            return true;
+            const raw = decodeProfileFromUrl(location.hash.slice('#profil='.length));
+            // Strikte Validierung: nur gewöhnliche Objekte, alle Texte kurz
+            // (Fix #7 — verhindert Toast-Spoofing / Social-Engineering-Links)
+            if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false;
+            const brand = String(raw.brand || '').slice(0, 40);
+            const name = String(raw.coffee_name || '').slice(0, 60);
+            if (!brand || !name) return false;
+            const profile = {
+                brand: brand,
+                coffee_name: name,
+                grind_microns: Number(raw.grind_microns),
+                temp_c: Number(raw.temp_c),
+                pressure_bar: Number(raw.pressure_bar),
+                shot_time_s: Number(raw.shot_time_s),
+                ey_percent: Number(raw.ey_percent)
+            };
+            if (applyCoffeeProfile(profile)) {
+                showToast(`Geteiltes Profil geladen: ${brand} — ${name}`);
+                history.replaceState(null, '', location.pathname); // Hash aufräumen
+                return true;
+            }
+            return false;
         }
 
 
