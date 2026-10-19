@@ -38,6 +38,29 @@ The library is powered by a free [Supabase](https://supabase.com) database:
 
 ---
 
+## 🔒 Security
+
+The application and the database schema were reviewed by an independent,
+adversarial LLM security council (red-teamer / database-architect / appsec
+auditors). Based on that review, the shipped code includes:
+
+* **Row Level Security enforced** — anonymous visitors can read and insert,
+  but never update or delete; destructive REST calls are rejected server-side.
+* **Hard input constraints in the database** — length limits and value ranges
+  on every column (brew parameters, sensory scores, free text), enforced even
+  against direct API calls that bypass the browser form.
+* **Server-side rate limiting** — a database trigger throttles new entries,
+  so bots can neither flood nor deface the library.
+* **Hardened frontend** — all database-provided strings are rendered via
+  `createElement` + `textContent` (no innerHTML with user data, no stored XSS),
+  shared URLs are validated and length-clamped before use, search input is
+  sanitized, and modern encoding APIs replace deprecated functions.
+
+The detailed findings, threat models, and verification protocol are kept
+private by the repository owner and are **not** part of this public repository.
+
+---
+
 ## 🤖 Development & AI Collaboration
 
 This project was co-created through human-AI collaboration using **Google Gemini 4 Argon**. The user provided the prompt design, concepts, and requirements, while the AI assisted in generating and structuring the code, physics logic, and documentation.

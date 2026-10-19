@@ -81,4 +81,24 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 | M2 | Phase 1+2: Bibliothek sichtbar, Profile ladbar | ✅ erledigt |
 | M3 | Phase 3: Speichern funktioniert live | ✅ erledigt |
 | M4 | Phase 4: Fallback + Share-Link | 🔶 fast fertig (JSON-Export offen) |
+| M6 | 🔒 Security-Hardening: RLS, Constraints, Rate-Limit, Frontend-Härtung | ✅ erledigt & verifiziert (Phase S1+S2) — Details siehe interne Security-Roadmap (privat) |
 | M5 | Öffentlicher Aufruf (Reddit r/espresso, Kaffee-Foren) | offen |
+| M7 | Phase S3: Supply-Chain-Härtung (Versions-Pinning, SRI, CSP) | offen |
+
+---
+
+## 🔒 Security
+
+Nach dem Feature-Release wurde der Code durch ein adversariales
+LLM-Security-Council geprüft. Die daraus umgesetzten Härtings:
+
+- Row Level Security zwingend aktiviert (nur Lesen + Anlegen für anonyme Nutzer)
+- Harte Längen-/Wertebereichs-Constraints auf allen Datenbank-Spalten
+- Serverseitiges Rate-Limiting gegen Bot-Flooding
+- Frontend-Härtung: XSS-sicheres Rendering (standard: `createElement` +
+  `textContent`), validierte Share-Links, sanatizerte Suche, moderne Encoder
+
+Konkrete Probe-Angriffe (REST-DELETE, Oversize-Insert, NaN-Injection) wurden
+nach der Migration verifiziert abgeblockt. Detaillierte Findings, Patches und
+die Security-Roadmap liegen **privat** beim Inhaber (`security/`, gitignored) —
+bewusst nicht im öffentlichen Repo.
