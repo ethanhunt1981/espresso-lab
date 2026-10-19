@@ -5,65 +5,71 @@ Ziel: Jeder Kaffeefan kann ohne Registrierung und ohne GitHub-Konto einen Kaffee
 und die Profile anderer direkt in der App laden und vergleichen.
 
 Infrastruktur: GitHub Pages (statisch, wie bisher) + **Supabase** (kostenlose
-Postgres-Datenbank) für die gemeinsamen Kaffee-Profile.
+Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 
 ---
 
-## Phase 0 — Vorbereitung (Repository-Inhaber)
+## Phase 0 — Vorbereitung (Repository-Inhaber) ✅
 
 > Nichts am Code — nur Konto & Konfiguration.
 
-- [ ] Supabase-Account anlegen (kostenlos, GitHub-Login möglich)
-- [ ] Neues Supabase-Projekt erstellen (Region nah wählen, z.B. EU-Central)
-- [ ] SQL-Schema ausführen (Tabelle `coffees` — Skript liefere ich)
-- [ ] Project-URL + anon key notieren
+- [x] Supabase-Account anlegen (kostenlos, GitHub-Login möglich)
+- [x] Neues Supabase-Projekt erstellen (Region: EU-Central)
+- [x] SQL-Schema ausführen (Tabelle `coffees` → `supabase/schema.sql`)
+- [x] Project-URL + anon key hinterlegen (`js/config.js`)
 
-## Phase 1 — Datenmodell & Backend-Anbindung
+## Phase 1 — Datenmodell & Backend-Anbindung ✅
 
-- [ ] **SQL-Schema** `supabase/schema.sql`:
-      Tabelle `coffees` (marke, name, herkunft, roestgrad, prozess, varietät,
+- [x] **SQL-Schema** `supabase/schema.sql`:
+      Tabelle `coffees` (marke, name, herkunft, röstgrad, prozess,
       einstellungen: dosis/mahlgrad/temp/druck/zeit,
       ergebnisse: ey/tds/säure/süße/bitterkeit, notiz, ersteller-name, zeitstempel)
-- [ ] **Row Level Security:** anonymes Lesen + anonymes Einfügen erlaubt,
+- [x] **Row Level Security:** anonymes Lesen + anonymes Einfügen erlaubt,
       Löschen/Ändern nur für Inhaber (über Supabase-Dashboard)
-- [ ] **Config-Mechanismus:** `config.js` (lokal, nicht committet) mit
-      Supabase-URL und anon key — App läuft auch ohne Werte
-      (dann localStorage-Fallback)
-- [ ] `supabase-js` per CDN einbinden (kein Build-Step nötig)
+- [x] **Config-Mechanismus:** `js/config.js` mit Supabase-URL und anon key —
+      App läuft auch ohne Werte (dann localStorage-Fallback)
+- [x] `supabase-js` per CDN einbinden (kein Build-Step nötig)
 
-## Phase 2 — UI: Kaffee-Bibliothek
+## Phase 2 — UI: Kaffee-Bibliothek ✅
 
-- [ ] Neuer App-Bereich „Kaffee-Bibliothek" (Tab neben den Diagrammen)
-- [ ] Kartenansicht aller Community-Kaffee: Marke, Herkunft, Röstgrad,
-      geteilte Einstellungen + Ergebnis-Shorties (EY%, TDS%,都非常)
-- [ ] **Profil laden:** Klick setzt alle Regler auf die gespeicherten Werte
-- [ ] Suche/Filter: Textsuche (Marke/Name), Filter Röstgrad
-- [ ] Sortierung: neueste, beste Bewertung
+- [x] Neuer App-Bereich „Kaffee-Bibliothek" (Tab neben den Diagrammen)
+- [x] **Hervorgehobenes Banner** am Seitenanfang mit CTA-Buttons
+      („Jetzt entdecken" / „Mein Shot teilen") — für maximale Sichtbarkeit
+- [x] Kartenansicht aller Community-Kaffees: Marke, Herkunft, Röstgrad,
+      geteilte Einstellungen + Ergebnis-Chips (EY%, TDS%, Süße/Säure/Bitter)
+- [x] **Profil laden:** Klick setzt alle Regler auf die gespeicherten Werte
+- [x] Suche/Filter: Textsuche (Marke/Name/Herkunft/Notiz), Filter Röstgrad
+- [x] Sortierung: neueste zuerst
+      *(beste Bewertung → Phase 5, sobald Bewertungen existieren)*
 
-## Phase 3 — Shot speichern & Profil anlegen
+## Phase 3 — Shot speichern & Profil anlegen ✅
 
-- [ ] Dialog „Mein Shot": Formular (Bohnen-Daten + optionaler Spitzname +
+- [x] Dialog „Mein Shot": Formular (Bohnen-Daten + optionaler Spitzname +
       Cupping-Notiz), gefüllt mit aktuellen Reglerwerten + berechneten Ergebnissen
-- [ ] Validierung (Pflichtfelder: Marke + Name des Kaffees)
-- [ ] Wiederholter Shot am **selben Kaffee** → zusätzliches Ergebnis am Profil
-      (Vergleich mehrerer Referenzzoß-Versuche pro Kaffee)
-- [ ] „Profil ohne Shot anlegen" (Bohne zuerst, Ergebnisse später)
+- [x] Validierung (Pflichtfelder: Marke + Name des Kaffees;_limits auch
+      datenbankseitig im SQL-Check erzwungen)
+- [x] Wiederholter Shot am selben Kaffee → zusätzlicher Eintrag
+      (Profile mit identischer Marke/Name gruppiert die Bibliothek aktuell
+      noch nicht — Vergleichsansicht folgt in Phase 5)
+- [x] „Profil ohne Shot anlegen" (Bohne zuerst, Ergebnisse später)
 
-## Phase 4 — Fallback & Teilen (nicht von Supabase abhängig)
+## Phase 4 — Fallback & Teilen (nicht von Supabase abhängig) — teilweise
 
-- [ ] localStorage-Fallback: „Meine Shots & meine Bohnen" lokal speichern
-- [ ] Share-Link: aktuelles Profil + Ergebnis als URL-Parameter — Absender
-      kann teilen即使 ohne Backend-Eintrag, Empfänger öffnet Link → Regler + Anzeige
+- [x] localStorage-Fallback: Profile lokal speichern (Tag „nur lokal",
+      inkl. Löschen solange noch kein Supabase-Write gelang)
+- [x] Share-Link: Profil Base64-codiert als URL-Parameter (`#profil=...`) —
+      Absender kann teilen, auch ohne Backend-Eintrag; Empfänger öffnet den
+      Link → Regler werden automatisch gesetzt
 - [ ] Export/Import als JSON-Datei
 
 ## Phase 5 — Verfeinerung (nach dem ersten Deployment)
 
 - [ ] Mehrfach-Ergebnisse pro Kaffee: Mittelwerte + Abweichung darstellen
 - [ ] „Vergleichen": 2–3 Kaffee parallel (Einstellungen + Geschmack)
-- [ ] Bewertungen an的市场 Profil (Daumen hoch/hin, anonym, Missbrauch begrenz)
-- [ ] Mod-Features: eigene Einträge per „Geheim-URL" bearbeiten/löschen
-- [ ] Spam-Schutz verfeinern (Rate-Limit via Cloudflare Turnstile o.ä.)
-- [ ] Übersetzung der UI (EN-Layout parallel zur DE-Variante)
+- [ ] Bewertungen am Profil (Daumen hoch/runter, anonym, Missbrauch begrenzt)
+- [ ] Mod-Features: eigene Einträge bearbeiten/löschen
+- [ ] Spam-Schutz verfeinern (z.B. Cloudflare Turnstile)
+- [ ] Übersetzung der UI (EN-Variante parallel zum DE-Original)
 
 ---
 
@@ -71,8 +77,8 @@ Postgres-Datenbank) für die gemeinsamen Kaffee-Profile.
 
 | Meilenstein | Inhalt | Status |
 |---|---|---|
-| M1 | Phase 0 fertig (Supabase steht) | offen |
-| M2 | Phase 1+2: Bibliothek sichtbar, Profile ladbar | offen |
-| M3 | Phase 3: Speichern funktioniert live | offen |
-| M4 | Phase 4: Fallback + Mobile polish | offen |
+| M1 | Phase 0 fertig (Supabase steht) | ✅ erledigt |
+| M2 | Phase 1+2: Bibliothek sichtbar, Profile ladbar | ✅ erledigt |
+| M3 | Phase 3: Speichern funktioniert live | ✅ erledigt |
+| M4 | Phase 4: Fallback + Share-Link | 🔶 fast fertig (JSON-Export offen) |
 | M5 | Öffentlicher Aufruf (Reddit r/espresso, Kaffee-Foren) | offen |
