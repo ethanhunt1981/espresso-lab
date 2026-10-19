@@ -73,7 +73,10 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
       „Neuester Shot"-Präfix, Ergebnis-Chips zeigen bei n≥2 den
       **Ø-Mittelwert** über alle Shots + einen „N Shots"-Chip
       *(Abweichungen/Spannweite: später bei Bedarf)*
-- [ ] „Vergleichen": 2–3 Kaffee parallel (Einstellungen + Geschmack)
+- [x] **„Vergleichen": bis zu 3 Kaffee parallel** — ⚖-Button an jeder Karte
+      (ausgewählte Karten erhalten amber-Rahmen), Vergleichstabelle über der
+      Bibliothek mit allen BoPoln- + Brühparameter + Ergebnissen + Autor;
+      Auswahl bereinigt sich selbst bei Suche/Filter, ✕ schließt den Modus
 - [ ] Bewertungen am Profil (Daumen hoch/runter, anonym, Missbrauch begrenzt)
 - [ ] Mod-Features: eigene Einträge bearbeiten/löschen
 - [ ] Spam-Schutz verfeinern (z.B. Cloudflare Turnstile)

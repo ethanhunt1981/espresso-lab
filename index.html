@@ -497,6 +497,8 @@
                             <input id="communityImportInput" type="file" accept=".json,application/json" class="hidden" onchange="handleJsonImport(event)">
                         </div>
                         <p id="communityStatus" class="text-[11px] text-stone-400 mb-3 hidden"></p>
+                        <!-- Phase 5.2: Vergleichstabelle (max. 3 Kaffee parallel) -->
+                        <div id="communityCompare" class="hidden mb-3 rounded-xl border border-amber-600/40 bg-amber-950/20 p-3"></div>
                         <div id="communityGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1"></div>
                         <p class="text-[11px] text-stone-400 mt-3 leading-snug">
                             <strong>Community-Bibliothek:</strong> Kaffeefans teilen hier ihre Bohnen samt Einstellungen und erzielten Ergebnissen — ohne Registrierung. Klick auf <span class="text-amber-300">„Profil laden"</span> übernimmt die Referenz-Werte in deine Regler.
@@ -705,6 +707,7 @@
             cpNotes: document.getElementById('cpNotes'),
             cpAuthor: document.getElementById('cpAuthor'),
             communityImportInput: document.getElementById('communityImportInput'),
+            communityCompare: document.getElementById('communityCompare'),
             espressoToast: document.getElementById('espressoToast')
         };
 
@@ -1648,7 +1651,13 @@
                 showCommunityStatus('');
             }
 
+            // Phase 5.2: Vergleichs-Auswahl bereinigen, wenn Einträge
+            // nicht mehr in der Liste sind (z.B. durch Suche/Filter)
+            compareSelection = compareSelection.filter((sel) =>
+                communityCoffeeList.some((p) => keyOf(p) === keyOf(sel)));
+
             renderCoffeeLibrary();
+            renderComparePanel();
         }
 
         // Phase 5.1: Einträge desselben Kaffees (Marke + Name) gruppieren —
@@ -1663,6 +1672,126 @@
                 groups.get(key).push(p);
             });
             return Array.from(groups.values());
+        }
+
+        // ------------------------------------------------------------------
+        // Phase 5.2: Vergleichsmodus — bis zu 3 Kaffee parallel gegenüberstellen
+        // ------------------------------------------------------------------
+        let compareSelection = [];
+
+        const keyOf = (p) => String(p.id || p.created_at || p.brand + '|' + p.coffee_name) + '|' +
+                            String(p.brand || '') + '|' + String(p.coffee_name || '');
+
+        function toggleCompare(p) {
+            const key = keyOf(p);
+            const idx = compareSelection.findIndex((c) => keyOf(c) === key);
+            if (idx >= 0) {
+                compareSelection.splice(idx, 1);
+            } else if (compareSelection.length >= 3) {
+                showToast('Maximal 3 Kaffee im Vergleich — bitte erst einen entfernen.', true);
+                return;
+            } else {
+                compareSelection.push(p);
+                showToast(`⚖ „${String(p.brand || '').slice(0, 40)}“ zum Vergleich hinzugefügt (${compareSelection.length}/3)`);
+            }
+            renderCoffeeLibrary(); // Auswahl-Highlights aktualisieren
+            renderComparePanel();
+        }
+
+        function closeCompare() {
+            compareSelection = [];
+            renderCoffeeLibrary();
+            renderComparePanel();
+        }
+
+        function renderComparePanel() {
+            els.communityCompare.classList.toggle('hidden', compareSelection.length === 0);
+            els.communityCompare.innerHTML = '';
+            if (!compareSelection.length) return;
+
+            // Kopfzeile: Titel + Schließen-Button
+            const head = document.createElement('div');
+            head.className = 'flex items-center justify-between mb-2 gap-2';
+            const title = document.createElement('span');
+            title.className = 'text-xs font-semibold text-amber-300';
+            title.textContent = `⚖ Vergleich (${compareSelection.length}/3)`;
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'px-2 py-1 rounded-lg text-xs bg-stone-800/80 text-stone-300 border border-stone-700 hover:bg-stone-700 transition cursor-pointer';
+            closeBtn.textContent = '✕ Vergleich schließen';
+            closeBtn.onclick = closeCompare;
+            head.appendChild(title);
+            head.appendChild(closeBtn);
+            els.communityCompare.appendChild(head);
+
+            // Zeilendefinitionen: [Label, Wertzugriff]
+            const score = (field) => (p) => Number.isFinite(Number(p[field])) ? Number(p[field]).toFixed(1) + '/10' : '—';
+            const rows = [
+                ['Marke', (p) => String(p.brand || '—')],
+                ['Name', (p) => String(p.coffee_name || '—')],
+                ['Herkunft', (p) => String(p.origin || '—')],
+                ['Röstgrad', (p) => ROAST_LABELS[p.roast_level] || p.roast_level || '—'],
+                ['Aufbereitung', (p) => String(p.process || '—')],
+                ['Dosis', (p) => Number(p.dose) ? Number(p.dose).toFixed(1) + ' g' : '—'],
+                ['Mahlgrad', (p) => Number(p.grind_microns) ? Math.round(Number(p.grind_microns)) + ' µm' : '—'],
+                ['Temperatur', (p) => Number(p.temp_c) ? Number(p.temp_c).toFixed(1) + ' °C' : '—'],
+                ['Druck', (p) => Number(p.pressure_bar) ? Number(p.pressure_bar).toFixed(1) + ' bar' : '—'],
+                ['Bezugszeit', (p) => Number(p.shot_time_s) ? Math.round(Number(p.shot_time_s)) + ' s' : '—'],
+                ['EY', (p) => Number.isFinite(Number(p.ey_percent)) ? Number(p.ey_percent).toFixed(1) + ' %' : '—'],
+                ['TDS', (p) => Number.isFinite(Number(p.tds_percent)) ? Number(p.tds_percent).toFixed(1) + ' %' : '—'],
+                ['Süße', score('sweetness')],
+                ['Säure', score('acidity')],
+                ['Bitter', score('bitterness')],
+                ['Von', (p) => String(p.author_name || '—')]
+            ];
+
+            const table = document.createElement('table');
+            table.className = 'w-full text-[11px] text-stone-200 border-collapse';
+
+            const thead = document.createElement('thead');
+            const headRow = document.createElement('tr');
+            const cornerTh = document.createElement('th');
+            cornerTh.className = 'text-left font-normal text-stone-400 pr-2 pb-1.5 align-bottom';
+            cornerTh.textContent = 'Eigenschaft';
+            headRow.appendChild(cornerTh);
+            compareSelection.forEach((p) => {
+                const th = document.createElement('th');
+                th.className = 'text-left pr-3 pb-1.5 align-bottom border-b border-stone-700';
+                const b = document.createElement('div');
+                b.className = 'font-semibold text-stone-100';
+                b.textContent = String(p.coffee_name || '').slice(0, 24);
+                const s = document.createElement('div');
+                s.className = 'font-normal text-[10px] text-stone-400';
+                s.textContent = String(p.brand || '').slice(0, 30);
+                th.appendChild(b);
+                th.appendChild(s);
+                headRow.appendChild(th);
+            });
+            thead.appendChild(headRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            rows.forEach(([label, accessor]) => {
+                const tr = document.createElement('tr');
+                const th = document.createElement('th');
+                th.className = 'text-left font-normal text-stone-400 pr-2 py-1 align-top tabular-nums';
+                th.textContent = label;
+                tr.appendChild(th);
+                compareSelection.forEach((p) => {
+                    const td = document.createElement('td');
+                    td.className = 'pr-3 py-1 align-top tabular-nums text-stone-200';
+                    td.textContent = String(accessor(p));
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+
+            els.communityCompare.appendChild(table);
+
+            const hint = document.createElement('p');
+            hint.className = 'text-[10px] text-stone-500 mt-2';
+            hint.textContent = 'Verwende ⚖ an den Karten, um Kaffee hinzuzufügen bzw. zu entfernen (max. 3).';
+            els.communityCompare.appendChild(hint);
         }
 
         function renderCoffeeLibrary() {
@@ -1769,6 +1898,12 @@
                 loadBtn.onclick = () => applyCoffeeProfile(p);
                 actions.appendChild(loadBtn);
 
+                const isCompared = compareSelection.some((c) => keyOf(c) === keyOf(p));
+                if (isCompared) {
+                    card.classList.remove('border-stone-800');
+                    card.classList.add('border-amber-500/70');
+                }
+
                 const shareBtn = document.createElement('button');
                 shareBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-stone-300 border border-stone-700 hover:bg-stone-700 transition cursor-pointer';
                 shareBtn.textContent = '🔗';
@@ -1782,6 +1917,15 @@
                 exportBtn.title = 'Profil als JSON-Datei herunterladen';
                 exportBtn.onclick = () => exportProfileJson(p);
                 actions.appendChild(exportBtn);
+
+                const compareBtn = document.createElement('button');
+                compareBtn.className = isCompared
+                    ? 'px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 text-stone-950 border border-amber-500 hover:bg-amber-500 transition cursor-pointer'
+                    : 'px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-stone-300 border border-stone-700 hover:bg-stone-700 transition cursor-pointer';
+                compareBtn.textContent = '⚖';
+                compareBtn.title = isCompared ? 'Aus dem Vergleich entfernen' : 'Zum Vergleich hinzufügen (max. 3)';
+                compareBtn.onclick = () => toggleCompare(p);
+                actions.appendChild(compareBtn);
 
                 if (p._local && coffeeDb === null) {
                     const delBtn = document.createElement('button');
