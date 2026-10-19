@@ -1,2 +1,5 @@
 # ── Geheime Dateien: nur für den Repository-Inhaber, nie auf GitHub ──
 security/
+
+# ── Node-Module (Tailwind-Build) ──
+node_modules/

@@ -1,0 +1,13 @@
+{
+  "name": "espresso-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive Espresso Lab — community espresso simulation with shared coffee profiles",
+  "scripts": {
+    "build:css": "tailwindcss -i css/tailwind.src.css -o css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i css/tailwind.src.css -o css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}

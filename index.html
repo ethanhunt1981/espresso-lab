@@ -3,44 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Content Security Policy: erlaubte Skript-/Verbindungs-Herkunft strikt einschränken (Phase S3.3) -->
+    <!-- Content Security Policy: erlaubte Skript-/Verbindungs-Herkunft strikt einschränken (Phase S3.3)
+         Hinweis: Tailwind wird lokal ausgeliefert (css/tailwind.css, Build via `npm run build:css`),
+         cdn.tailwindcss.com ist deshalb bewusst NICHT mehr erlaubt. -->
     <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://aizvoccuyuzmnpedolbu.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
+          content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://aizvoccuyuzmnpedolbu.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
     <title>Barista Pro — Interaktives Espresso-Lab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c130e'/%3E%3Cpath d='M8 10h12v6a6 6 0 01-6 6h-0A6 6 0 018 16v-6zm12 2h3a2 2 0 010 4h-3' stroke='%23d99b52' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link href="css/tailwind.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="js/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
             integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"
             crossorigin="anonymous"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        espresso: {
-                            950: '#0f0a07',
-                            900: '#1c130e',
-                            800: '#2e1f16',
-                            700: '#4a3121',
-                            600: '#6e472b',
-                            500: '#9c6334',
-                            400: '#c88343',
-                            300: '#dea366',
-                            200: '#ecc599',
-                            100: '#f6e3cc',
-                        },
-                        crema: '#d99b52',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             background-color: #0c0a09;

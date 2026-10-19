@@ -88,14 +88,23 @@ Since this project consists of a single standalone `index.html` file, no complex
    python -m http.server 8000
    # → http://127.0.0.1:8000
    ```
+3. *(Only for contributors / after adding new Tailwind classes)* rebuild the stylesheets:
+   ```bash
+   npm install        # once
+   npm run build:css  # regenerates css/tailwind.css
+   ```
 
 ### Project structure
 
 ```
-index.html            # App: UI, physics engine, charts, animation
-js/config.js          # Supabase project URL + anon key (public by design)
-supabase/schema.sql   # Database schema & security policies (run once per project)
-ROADMAP.md            # Development roadmap
+index.html              # App: UI, physics engine, charts, animation
+css/tailwind.css        # Compiled Tailwind output (committed)
+css/tailwind.src.css    # Tailwind input (`@tailwind` directives)
+tailwind.config.js      # Tailwind theme config (colors, fonts)
+package.json            # Tailwind build scripts (devDependency only)
+js/config.js            # Supabase project URL + anon key (public by design)
+supabase/schema.sql     # Database schema & security policies (run once per project)
+ROADMAP.md              # Development roadmap
 ```
 
 ---
