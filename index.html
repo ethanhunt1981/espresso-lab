@@ -6,6 +6,8 @@
     <title>Barista Pro — Interaktives Espresso-Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -316,6 +318,13 @@
                             </svg>
                             <span id="pullShotBtnText">Bezug neu starten (Shot-Simulation)</span>
                         </button>
+                        <button onclick="openSaveProfileModal()"
+                                class="w-full py-2.5 px-4 rounded-xl font-medium text-xs bg-stone-800/80 text-amber-300 border border-amber-700/50 hover:bg-stone-700 transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-9-9 9 9-2zm0 0v-8"/>
+                            </svg>
+                            Bohnenprofil der Community hinzufügen
+                        </button>
                     </div>
                 </div>
 
@@ -424,13 +433,17 @@
                 <!-- 2. Interactive Charts (Tabs: Brewing Control Chart & Flow Profile) -->
                 <div class="glass-panel rounded-2xl p-5 shadow-xl flex flex-col">
                     <div class="flex items-center justify-between mb-3">
-                        <h2 class="text-sm font-semibold text-stone-100">Wissenschaftliche Diagramme</h2>
+                        <h2 id="chartPanelTitle" class="text-sm font-semibold text-stone-100">Wissenschaftliche Diagramme</h2>
                         <div class="inline-flex rounded-lg bg-stone-900 p-0.5 border border-stone-800">
                             <button id="tabBtnControl" onclick="switchChartTab('control')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition">
                                 EY% vs. TDS Matrix
                             </button>
                             <button id="tabBtnFlow" onclick="switchChartTab('flow')" class="px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition">
                                 Durchfluss & Extraktion
+                            </button>
+                            <button id="tabBtnCommunity" onclick="switchChartTab('community')" class="px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                Kaffee-Bibliothek
                             </button>
                         </div>
                     </div>
@@ -450,11 +463,122 @@
                             <strong>Kinetik über die Zeit:</strong> Säuren lösen sich in den ersten Sekunden, gefolgt von Karamell-Süße und zuletzt herben Pflanzenfasern/Bitterstoffen.
                         </p>
                     </div>
+
+                    <!-- 3. Community-Kaffee-Bibliothek -->
+                    <div id="chartContainerCommunity" class="w-full hidden">
+                        <div class="flex items-center gap-2 mb-3 flex-wrap">
+                            <input id="communitySearch" type="search" placeholder="Suchen: Marke, Name, Herkunft, Notiz …"
+                                   class="flex-1 min-w-[180px] px-3 py-1.5 rounded-lg text-xs bg-stone-950 border border-stone-800 text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-600/60">
+                            <select id="communityRoastFilter" class="px-2 py-1.5 rounded-lg text-xs bg-stone-950 border border-stone-800 text-stone-200 focus:outline-none focus:border-amber-600/60">
+                                <option value="">Alle Röstgrade</option>
+                                <option value="hell">Hell</option>
+                                <option value="mittel-hell">Mittel-Hell</option>
+                                <option value="mittel">Mittel</option>
+                                <option value="mittel-dunkel">Mittel-Dunkel</option>
+                                <option value="dunkel">Dunkel</option>
+                            </select>
+                            <button onclick="loadCoffeeLibrary()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-stone-200 border border-stone-700 hover:bg-stone-700 transition" title="Liste aktualisieren">
+                                ↻ Neu laden
+                            </button>
+                        </div>
+                        <p id="communityStatus" class="text-[11px] text-stone-400 mb-3 hidden"></p>
+                        <div id="communityGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1"></div>
+                        <p class="text-[11px] text-stone-400 mt-3 leading-snug">
+                            <strong>Community-Bibliothek:</strong> Kaffeefans teilen hier ihre Bohnen samt Einstellungen und erzielten Ergebnissen — ohne Registrierung. Klick auf <span class="text-amber-300">„Profil laden"</span> übernimmt die Referenz-Werte in deine Regler.
+                        </p>
+                    </div>
                 </div>
 
             </section>
         </div>
     </main>
+
+    <!-- Community Save Modal -->
+    <div id="saveProfileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="glass-panel rounded-2xl shadow-2xl border border-stone-700 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between p-5 border-b border-stone-800 sticky top-0 bg-stone-900/90 backdrop-blur-md z-10">
+                <h3 class="text-base font-semibold text-stone-100 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-9-9 9 9-2zm0 0v-8"/>
+                    </svg>
+                    Mein Shot für die Community
+                </h3>
+                <button onclick="closeSaveProfileModal()" class="text-stone-400 hover:text-stone-100 transition" title="Schließen">✕</button>
+            </div>
+
+            <form id="saveProfileForm" onsubmit="submitCoffeeProfile(event)" class="p-5 flex flex-col gap-4">
+                <!-- Vorschau der aktuellen Werte -->
+                <div class="rounded-xl bg-stone-950/80 border border-stone-800 p-3 text-xs font-mono text-stone-300 leading-relaxed">
+                    <div id="cpPreviewSettings"></div>
+                    <div id="cpPreviewResults" class="text-amber-300 mt-1"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="flex flex-col gap-1 text-xs text-stone-400">
+                        Marke / Röster *
+                        <input id="cpBrand" type="text" required maxlength="80" placeholder="z.B. Cambio Coffee Roasters"
+                               class="px-3 py-2 rounded-lg text-sm bg-stone-950 border border-stone-800 text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-600/60">
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs text-stone-400">
+                        Name des Kaffees *
+                        <input id="cpName" type="text" required maxlength="120" placeholder="z.B. Dunkle Monate"
+                               class="px-3 py-2 rounded-lg text-sm bg-stone-950 border border-stone-800 text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-600/60">
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="flex flex-col gap-1 text-xs text-stone-400">
+                        Herkunft
+                        <input id="cpOrigin" type="text" maxlength="120" placeholder="z.B. Äthiopien, Yirgacheffe"
+                               class="px-3 py-2 rounded-lg text-sm bg-stone-950 border border-stone-800 text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-600/60">
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs text-stone-400">
+                        Röstgrad *
+                        <select id="cpRoast" required
+                                class="px-3 py-2 rounded-lg text-sm bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-600/60">
+                            <option value="hell">Hell</option>
+                            <option value="mittel-hell">Mittel-Hell</option>
+                            <option value="mittel" selected>Mittel</option>
+                            <option value="mittel-dunkel">Mittel-Dunkel</option>
+                            <option value="dunkel">Dunkel</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label class="flex flex-col gap-1 text-xs text-stone-400">
+                    Aufbereitung
+                    <input id="cpProcess" type="text" maxlength="60" placeholder="z.B. gewaschen, natural, anaerob …"
+                           class="px-3 py-2 rounded-lg text-sm bg-stone-950 border border-stone-800 text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-600/60">
+                </label>
+
+                <label class="flex flex-col gap-1 text-xs text-stone-400">
+                    Cupping-Notizen
+                    <textarea id="cpNotes" rows="3" maxlength="500" placeholder="Wie hat der Shot geschmeckt? Hinweise zu Body, Süße, Säure, Crema …"
+                              class="px-3 py-2 rounded-lg text-sm bg-stone-950 border border-stone-800 text-stone-100 placeholder-stone-500 resize-y focus:outline-none focus:border-amber-600/60"></textarea>
+                </label>
+
+                <label class="flex flex-col gap-1 text-xs text-stone-400">
+                    Dein Spitzname (optional)
+                    <input id="cpAuthor" type="text" maxlength="40" placeholder="z.B. MarcoDieBohne"
+                           class="px-3 py-2 rounded-lg text-sm bg-stone-950 border border-stone-800 text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-600/60">
+                </label>
+
+                <p id="cpSaveStatus" class="text-xs text-stone-400 hidden"></p>
+
+                <div class="flex gap-3 pt-1">
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-950 shadow-lg shadow-amber-900/40 transition cursor-pointer">
+                        Profil veröffentlichen
+                    </button>
+                    <button type="button" onclick="closeSaveProfileModal()" class="px-4 py-2.5 rounded-xl text-sm font-medium bg-stone-800/80 text-stone-300 border border-stone-700 hover:bg-stone-700 transition cursor-pointer">
+                        Abbrechen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="espressoToast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-xl text-sm font-medium shadow-2xl border transition"></div>
 
     <!-- Footer Info -->
     <footer class="border-t border-stone-800/80 bg-stone-950/60 py-4 mt-8">
@@ -545,7 +669,27 @@
             controlChartCanvas: document.getElementById('controlChartCanvas'),
             flowChartCanvas: document.getElementById('flowChartCanvas'),
             pullShotBtn: document.getElementById('pullShotBtn'),
-            pullShotBtnText: document.getElementById('pullShotBtnText')
+            pullShotBtnText: document.getElementById('pullShotBtnText'),
+
+            // Community library
+            chartPanelTitle: document.querySelector('#chartPanelTitle'),
+            communitySearch: document.getElementById('communitySearch'),
+            communityRoastFilter: document.getElementById('communityRoastFilter'),
+            communityGrid: document.getElementById('communityGrid'),
+            communityStatus: document.getElementById('communityStatus'),
+            saveProfileModal: document.getElementById('saveProfileModal'),
+            saveProfileForm: document.getElementById('saveProfileForm'),
+            cpPreviewSettings: document.getElementById('cpPreviewSettings'),
+            cpPreviewResults: document.getElementById('cpPreviewResults'),
+            cpSaveStatus: document.getElementById('cpSaveStatus'),
+            cpBrand: document.getElementById('cpBrand'),
+            cpName: document.getElementById('cpName'),
+            cpOrigin: document.getElementById('cpOrigin'),
+            cpRoast: document.getElementById('cpRoast'),
+            cpProcess: document.getElementById('cpProcess'),
+            cpNotes: document.getElementById('cpNotes'),
+            cpAuthor: document.getElementById('cpAuthor'),
+            espressoToast: document.getElementById('espressoToast')
         };
 
         function calculateEspressoPhysics() {
@@ -1331,23 +1475,454 @@
             state.activeChartTab = tab;
             const controlContainer = document.getElementById('chartContainerControl');
             const flowContainer = document.getElementById('chartContainerFlow');
+            const communityContainer = document.getElementById('chartContainerCommunity');
             const btnControl = document.getElementById('tabBtnControl');
             const btnFlow = document.getElementById('tabBtnFlow');
+            const btnCommunity = document.getElementById('tabBtnCommunity');
+            const activeBtnCls = 'px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition';
+            const idleBtnCls = 'px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition';
+
+            // Community-Tab braucht die Buttons mit Icon: className includes flex
+            btnControl.className = tab === 'control' ? activeBtnCls : idleBtnCls;
+            btnFlow.className = tab === 'flow' ? activeBtnCls : idleBtnCls;
+            btnCommunity.className = tab === 'community'
+                ? activeBtnCls + ' flex items-center gap-1'
+                : idleBtnCls + ' flex items-center gap-1';
+
+            controlContainer.classList.toggle('hidden', tab !== 'control');
+            flowContainer.classList.toggle('hidden', tab !== 'flow');
+            communityContainer.classList.toggle('hidden', tab !== 'community');
+
+            els.chartPanelTitle.textContent = tab === 'community' ? 'Community-Kaffee-Bibliothek' : 'Wissenschaftliche Diagramme';
 
             if (tab === 'control') {
-                controlContainer.classList.remove('hidden');
-                flowContainer.classList.add('hidden');
-                btnControl.className = 'px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition';
-                btnFlow.className = 'px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition';
                 drawControlChart();
-            } else {
-                controlContainer.classList.add('hidden');
-                flowContainer.classList.remove('hidden');
-                btnFlow.className = 'px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-stone-950 transition';
-                btnControl.className = 'px-2.5 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-stone-200 transition';
+            } else if (tab === 'flow') {
                 drawFlowChart();
+            } else if (tab === 'community' && !communityLibraryLoaded) {
+                communityLibraryLoaded = true;
+                loadCoffeeLibrary();
             }
         }
+
+        // =====================================================================
+        // COMMUNITY KAFFEE-BIBLIOTHEK (Supabase + localStorage-Fallback)
+        // =====================================================================
+        let coffeeDb = null;              // Supabase client (null => offline/local mode)
+        let communityLibraryLoaded = false;
+        let communityCoffeeList = [];     // Current cached list shown in grid
+        const LOCAL_PROFILES_KEY = 'espressoLabMyProfiles';
+
+        const ROAST_LABELS = {
+            'hell': 'Hell',
+            'mittel-hell': 'Mittel-Hell',
+            'mittel': 'Mittel',
+            'mittel-dunkel': 'Mittel-Dunkel',
+            'dunkel': 'Dunkel'
+        };
+
+        function initDatabase() {
+            try {
+                const cfg = window.ESPRESSO_LAB_CONFIG || {};
+                const hasKey = cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY &&
+                               !cfg.SUPABASE_ANON_KEY.includes('EINTRAGEN');
+                if (hasKey && window.supabase && window.supabase.createClient) {
+                    coffeeDb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+                }
+            } catch (err) {
+                console.warn('Supabase konnte nicht initialisiert werden:', err);
+                coffeeDb = null;
+            }
+        }
+
+        function getLocalProfiles() {
+            try {
+                return JSON.parse(localStorage.getItem(LOCAL_PROFILES_KEY) || '[]');
+            } catch (e) { return []; }
+        }
+
+        function storeLocalProfile(profile) {
+            try {
+                const list = getLocalProfiles();
+                profile._local = true;
+                profile.created_at = profile.created_at || new Date().toISOString();
+                list.unshift(profile);
+                localStorage.setItem(LOCAL_PROFILES_KEY, JSON.stringify(list.slice(0, 100)));
+                return true;
+            } catch (e) { return false; }
+        }
+
+        function removeLocalProfile(id) {
+            try {
+                const list = getLocalProfiles().filter(p => (p.id || p.created_at) !== id);
+                localStorage.setItem(LOCAL_PROFILES_KEY, JSON.stringify(list));
+                return true;
+            } catch (e) { return false; }
+        }
+
+        function showCommunityStatus(message, isError = false) {
+            els.communityStatus.textContent = message;
+            els.communityStatus.classList.toggle('hidden', !message);
+            els.communityStatus.classList.toggle('text-red-400', isError);
+            els.communityStatus.classList.toggle('text-stone-400', !isError);
+        }
+
+        async function loadCoffeeLibrary() {
+            showCommunityStatus('Lade Kaffee-Bibliothek …');
+            els.communityGrid.innerHTML = '';
+
+            let remoteFailed = false;
+            let query = coffeeDb ? coffeeDb.from('coffees').select('*') : null;
+
+            if (query) {
+                const roastFilter = els.communityRoastFilter.value;
+                if (roastFilter) query = query.eq('roast_level', roastFilter);
+                const searchText = els.communitySearch.value.trim();
+                if (searchText.length >= 2) query = query.ilike('search_text', '%' + searchText.toLowerCase() + '%');
+                query = query.order('created_at', { ascending: false }).limit(60);
+
+                const { data, error } = await query;
+                if (error) {
+                    console.warn('Community-Bibliothek: Supabase-Fehler:', error);
+                    remoteFailed = true;
+                } else {
+                    communityCoffeeList = data || [];
+                }
+            } else {
+                remoteFailed = !coffeeDb;
+            }
+
+            const localProfiles = getLocalProfiles().filter(p => {
+                const roastFilter = els.communityRoastFilter.value;
+                const searchText = els.communitySearch.value.trim().toLowerCase();
+                if (roastFilter && p.roast_level !== roastFilter) return false;
+                if (searchText.length >= 2) {
+                    const haystack = [p.brand, p.coffee_name, p.origin, p.notes]
+                        .join(' ').toLowerCase();
+                    if (!haystack.includes(searchText)) return false;
+                }
+                return true;
+            });
+
+            communityCoffeeList.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            communityCoffeeList = [].concat(
+                communityCoffeeList.filter(p => !p._local),
+                localProfiles
+            );
+
+            if (remoteFailed && !coffeeDb) {
+                showCommunityStatus('Offline-Modus: Nur lokal gespeicherte Profile sichtbar. (Supabase nicht erreichbar/nicht konfiguriert — teilen per Link funktioniert trotzdem.)');
+            } else if (remoteFailed) {
+                showCommunityStatus('Supabase zurzeit nicht erreichbar — es werden nur lokal gespeicherte Profile angezeigt.', true);
+            } else if (communityCoffeeList.length === 0) {
+                showCommunityStatus('Noch keine Kaffee gefunden — als Erste.r dein Profil mit „Bohnenprofil hinzufügen" teilen!');
+            } else {
+                showCommunityStatus('');
+            }
+
+            renderCoffeeLibrary();
+        }
+
+        function renderCoffeeLibrary() {
+            els.communityGrid.innerHTML = '';
+            if (!communityCoffeeList.length) return;
+
+            communityCoffeeList.forEach((p) => {
+                const card = document.createElement('div');
+                card.className = 'rounded-xl bg-stone-950/80 border border-stone-800 p-3 flex flex-col gap-2 hover:border-amber-700/50 transition';
+
+                const header = document.createElement('div');
+                header.className = 'flex items-start justify-between gap-2';
+                const titleWrap = document.createElement('div');
+                titleWrap.className = 'min-w-0';
+                const brandEl = document.createElement('div');
+                brandEl.className = 'text-sm font-semibold text-stone-100 truncate';
+                brandEl.textContent = p.brand;
+                const nameEl = document.createElement('div');
+                nameEl.className = 'text-xs text-stone-300 truncate';
+                nameEl.textContent = p.coffee_name;
+                titleWrap.appendChild(brandEl);
+                titleWrap.appendChild(nameEl);
+                const roastBadge = document.createElement('span');
+                roastBadge.className = 'shrink-0 px-2 py-0.5 rounded-md text-[10px] font-mono bg-espresso-700/40 text-espresso-200 border border-espresso-500/40';
+                roastBadge.textContent = ROAST_LABELS[p.roast_level] || p.roast_level || '—';
+                header.appendChild(titleWrap);
+                header.appendChild(roastBadge);
+                card.appendChild(header);
+
+                if (p.origin || p.process) {
+                    const sub = document.createElement('div');
+                    sub.className = 'text-[11px] text-stone-400 truncate';
+                    sub.textContent = [p.origin, p.process].filter(Boolean).join(' · ');
+                    card.appendChild(sub);
+                }
+
+                const settings = document.createElement('div');
+                settings.className = 'text-[11px] font-mono text-stone-300 bg-stone-900/70 rounded-lg px-2 py-1.5 leading-relaxed';
+                settings.textContent = `${Math.round(p.grind_microns || state.grind)} µm · ${Number(p.temp_c || state.temp).toFixed(1)} °C · ${Number(p.pressure_bar || state.pressure).toFixed(1)} bar · ${Math.round(p.shot_time_s || state.shotTime)} s`;
+                card.appendChild(settings);
+
+                const results = document.createElement('div');
+                results.className = 'flex flex-wrap gap-1.5';
+                const chipDefs = [
+                    ['EY', p.ey_percent != null ? Number(p.ey_percent).toFixed(1) + '%' : null],
+                    ['TDS', p.tds_percent != null ? Number(p.tds_percent).toFixed(1) + '%' : null],
+                    ['Süße', p.sweetness != null ? Number(p.sweetness).toFixed(1) + '/10' : null],
+                    ['Säure', p.acidity != null ? Number(p.acidity).toFixed(1) + '/10' : null],
+                    ['Bitter', p.bitterness != null ? Number(p.bitterness).toFixed(1) + '/10' : null]
+                ];
+                chipDefs.forEach(([label, value]) => {
+                    if (value == null) return;
+                    const chip = document.createElement('span');
+                    chip.className = 'px-1.5 py-0.5 rounded bg-stone-800/80 text-[10px] font-mono text-stone-300 border border-stone-700';
+                    chip.textContent = `${label} ${value}`;
+                    results.appendChild(chip);
+                });
+                card.appendChild(results);
+
+                if (p.notes) {
+                    const note = document.createElement('p');
+                    note.className = 'text-[11px] text-stone-400 italic line-clamp-2';
+                    note.textContent = '„' + p.notes + '"';
+                    card.appendChild(note);
+                }
+
+                const meta = document.createElement('div');
+                meta.className = 'text-[10px] text-stone-500 flex items-center justify-between gap-2';
+                const metaLeft = document.createElement('span');
+                metaLeft.className = 'truncate';
+                metaLeft.textContent = [p.author_name ? '☕ ' + p.author_name : null, p.created_at ? new Date(p.created_at).toLocaleDateString('de-DE') : null]
+                    .filter(Boolean).join(' · ');
+                if (p._local) {
+                    const localTag = document.createElement('span');
+                    localTag.className = 'shrink-0 px-1.5 py-0.5 rounded bg-sky-900/60 text-sky-300 border border-sky-700/50';
+                    localTag.textContent = 'nur lokal';
+                    meta.appendChild(metaLeft);
+                    meta.appendChild(localTag);
+                } else {
+                    meta.appendChild(metaLeft);
+                }
+                card.appendChild(meta);
+
+                const actions = document.createElement('div');
+                actions.className = 'flex gap-2 mt-auto pt-1';
+                const loadBtn = document.createElement('button');
+                loadBtn.className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-stone-950 transition cursor-pointer';
+                loadBtn.textContent = 'Profil laden';
+                loadBtn.onclick = () => applyCoffeeProfile(p);
+                actions.appendChild(loadBtn);
+
+                const shareBtn = document.createElement('button');
+                shareBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-stone-300 border border-stone-700 hover:bg-stone-700 transition cursor-pointer';
+                shareBtn.textContent = '🔗';
+                shareBtn.title = 'Dieses Profil als Link kopieren';
+                shareBtn.onclick = () => copyProfileShareLink(p);
+                actions.appendChild(shareBtn);
+
+                if (p._local && coffeeDb === null) {
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs bg-red-950/60 text-red-300 border border-red-800/50 hover:bg-red-900 transition cursor-pointer';
+                    delBtn.textContent = '🗑';
+                    delBtn.title = 'Lokal gespeichertes Profil löschen';
+                    delBtn.onclick = () => {
+                        if (removeLocalProfile(p.id || p.created_at)) {
+                            loadCoffeeLibrary();
+                            showToast('Lokales Profil gelöscht.');
+                        }
+                    };
+                    actions.appendChild(delBtn);
+                }
+                card.appendChild(actions);
+
+                els.communityGrid.appendChild(card);
+            });
+        }
+
+        function applyCoffeeProfile(p) {
+            state.grind = Math.min(400, Math.max(150, Math.round(p.grind_microns || state.grind)));
+            state.temp = Math.min(98, Math.max(86, Number(p.temp_c) || state.temp));
+            state.pressure = Math.min(12, Math.max(3, Number(p.pressure_bar) || state.pressure));
+            state.shotTime = Math.min(45, Math.max(15, Math.round(Number(p.shot_time_s) || state.shotTime)));
+
+            els.grindSlider.value = state.grind;
+            els.tempSlider.value = state.temp;
+            els.pressureSlider.value = state.pressure;
+            els.timeSlider.value = state.shotTime;
+
+            startTimedShot();
+            updateUI();
+            showToast(`Profil geladen: ${p.brand} — ${p.coffee_name}`);
+        }
+
+        // ---- Shot speichern (Modal) ----
+        function openSaveProfileModal() {
+            updateUI(); // sicherstellen, dass state aktuell ist
+            els.cpPreviewSettings.textContent =
+                `Mahlgrad ${state.grind} µm · ${state.temp.toFixed(1)} °C · ${state.pressure.toFixed(1)} bar · ${state.shotTime} s · Dosis ${state.dose.toFixed(1)} g`;
+            els.cpPreviewResults.textContent =
+                `EY ${state.extractionYield.toFixed(1)}% · TDS ${state.tds.toFixed(1)}% · Süße ${state.sweetness.toFixed(1)}/10 · Säure ${state.acidity.toFixed(1)}/10 · Bitter ${state.bitterness.toFixed(1)}/10`;
+
+            els.cpSaveStatus.classList.add('hidden');
+            els.saveProfileModal.classList.remove('hidden');
+            els.saveProfileForm.reset();
+            els.cpBrand.focus();
+        }
+
+        function closeSaveProfileModal() {
+            els.saveProfileModal.classList.add('hidden');
+            els.cpSaveStatus.classList.add('hidden');
+        }
+
+        async function submitCoffeeProfile(event) {
+            event.preventDefault();
+            const brand = els.cpBrand.value.trim();
+            const coffeeName = els.cpName.value.trim();
+            if (brand.length < 2 || coffeeName.length < 2) {
+                showSaveStatus('Bitte Marke und Kaffee-Name angeben (mindestens 2 Zeichen).', true);
+                return;
+            }
+
+            const profile = {
+                brand: brand.slice(0, 80),
+                coffee_name: coffeeName.slice(0, 120),
+                origin: els.cpOrigin.value.trim().slice(0, 120) || null,
+                roast_level: els.cpRoast.value,
+                process: els.cpProcess.value.trim().slice(0, 60) || null,
+                dose: state.dose,
+                grind_microns: state.grind,
+                temp_c: state.temp,
+                pressure_bar: state.pressure,
+                shot_time_s: state.shotTime,
+                ey_percent: Number(state.extractionYield.toFixed(2)),
+                tds_percent: Number(state.tds.toFixed(2)),
+                acidity: Number(state.acidity.toFixed(2)),
+                sweetness: Number(state.sweetness.toFixed(2)),
+                bitterness: Number(state.bitterness.toFixed(2)),
+                notes: els.cpNotes.value.trim().slice(0, 500) || null,
+                author_name: els.cpAuthor.value.trim().slice(0, 40) || null
+            };
+
+            els.cpSaveStatus.textContent = 'Wird veröffentlicht …';
+            els.cpSaveStatus.classList.remove('hidden');
+            els.cpSaveStatus.classList.remove('text-red-400');
+            els.cpSaveStatus.classList.add('text-stone-400');
+
+            if (coffeeDb) {
+                const { error } = await coffeeDb.from('coffees').insert(profile);
+                if (error) {
+                    console.warn('Veröffentlichen fehlgeschlagen:', error);
+                    if (!storeLocalProfile(profile)) {
+                        showSaveStatus('Veröffentlichen fehlgeschlagen (' + (error.message || 'Fehler') + ') und lokal Speichern nicht möglich.', true);
+                        return;
+                    }
+                    showSaveStatus('Netzwerkfehler — dein Profil wurde lokal gespeichert und erscheint in der Bibliothek (Tag „nur lokal").');
+                    communityCoffeeList.unshift(Object.assign({}, profile, { created_at: new Date().toISOString() }));
+                    renderCoffeeLibrary();
+                    showToast('Profil lokal gespeichert (Netzwerkfehler beim Veröffentlichen).');
+                    setTimeout(closeSaveProfileModal, 1600);
+                    return;
+                }
+                showToast(`🚀 ${brand} — ${coffeeName} ist jetzt in der Community!`);
+                closeSaveProfileModal();
+                communityLibraryLoaded = false; // bewusst neu laden beim nächsten Öffnen
+                switchChartTab('community');
+                return;
+            }
+
+            // Offline-Fallback: nur lokal
+            if (storeLocalProfile(profile)) {
+                showToast('Offline-Modus: Profil in deinem Browser gespeichert.');
+                closeSaveProfileModal();
+                communityCoffeeList.unshift(Object.assign({}, profile, { created_at: new Date().toISOString(), _local: true }));
+                renderCoffeeLibrary();
+            } else {
+                showSaveStatus('Speichern fehlgeschlagen — bitte Browser-Speicher prüfen.', true);
+            }
+        }
+
+        function showSaveStatus(message, isError) {
+            els.cpSaveStatus.textContent = message;
+            els.cpSaveStatus.classList.toggle('hidden', false);
+            els.cpSaveStatus.classList.toggle('text-red-400', !!isError);
+            els.cpSaveStatus.classList.toggle('text-stone-400', !isError);
+        }
+
+        // ---- Toast ----
+        let toastTimeout = null;
+        function showToast(message, isError = false) {
+            els.espressoToast.textContent = message;
+            els.espressoToast.classList.toggle('hidden', false);
+            els.espressoToast.classList.toggle('bg-emerald-900/90', !isError);
+            els.espressoToast.classList.toggle('border-emerald-700/60', !isError);
+            els.espressoToast.classList.toggle('text-emerald-200', !isError);
+            els.espressoToast.classList.toggle('bg-red-900/90', isError);
+            els.espressoToast.classList.toggle('border-red-700/60', isError);
+            els.espressoToast.classList.toggle('text-red-200', isError);
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => els.espressoToast.classList.add('hidden'), 4000);
+        }
+
+        // ---- Share-Link ----
+        function encodeProfileForUrl(profile) {
+            const compact = {
+                brand: profile.brand,
+                coffee_name: profile.coffee_name,
+                origin: profile.origin || undefined,
+                roast_level: profile.roast_level,
+                process: profile.process || undefined,
+                grind_microns: profile.grind_microns,
+                temp_c: profile.temp_c,
+                pressure_bar: profile.pressure_bar,
+                shot_time_s: profile.shot_time_s,
+                ey_percent: profile.ey_percent,
+                tds_percent: profile.tds_percent,
+                acidity: profile.acidity,
+                sweetness: profile.sweetness,
+                bitterness: profile.bitterness
+            };
+            return btoa(unescape(encodeURIComponent(JSON.stringify(compact))))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function decodeProfileFromUrl(encoded) {
+            try {
+                let s = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                while (s.length % 4) s += '=';
+                return JSON.parse(decodeURIComponent(escape(atob(s))));
+            } catch (e) { return null; }
+        }
+
+        function copyProfileShareLink(profile) {
+            const url = location.origin + location.pathname + '#profil=' + encodeProfileForUrl(profile);
+            const done = () => showToast('🔗 Link kopiert — Empfänger sehen die Einstellungen beim Öffnen.');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(done, () => fallbackCopy(url, done));
+            } else {
+                fallbackCopy(url, done);
+            }
+        }
+
+        function fallbackCopy(text, done) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); done(); } catch (e) { showToast('Kopieren nicht möglich — Link steht in der Adresszeile.', true); }
+            document.body.removeChild(ta);
+        }
+
+        function checkSharedProfileFromUrl() {
+            if (!location.hash.startsWith('#profil=')) return false;
+            const profile = decodeProfileFromUrl(location.hash.slice('#profil='.length));
+            if (!profile) return false;
+            applyCoffeeProfile(profile);
+            showToast(`Geteiltes Profil geladen: ${profile.brand} — ${profile.coffee_name}`);
+            history.replaceState(null, '', location.pathname); // Hash aufräumen
+            return true;
+        }
+
 
         // Attach Event Listeners to Sliders
         els.grindSlider.addEventListener('input', (e) => {
@@ -1375,10 +1950,28 @@
             drawFlowChart();
         });
 
+        // Community-Bibliothek: Suche & Filter lösen eine Neue-Abfrage aus (debounced)
+        let communitySearchTimeout = null;
+        els.communitySearch.addEventListener('input', () => {
+            if (communitySearchTimeout) clearTimeout(communitySearchTimeout);
+            communitySearchTimeout = setTimeout(() => loadCoffeeLibrary(), 350);
+        });
+        els.communityRoastFilter.addEventListener('change', () => loadCoffeeLibrary());
+
+        // ESC schließt das Speichern-Modal
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !els.saveProfileModal.classList.contains('hidden')) {
+                closeSaveProfileModal();
+            }
+        });
+
         // Start application on window load
         window.onload = function () {
+            initDatabase();
             updateUI();
             animateEspressoStream();
+            // Geteiltes Profil aus der URL anwenden (voreingestellt, bevor animiert wird)
+            checkSharedProfileFromUrl();
         };
     </script>
 </body>
