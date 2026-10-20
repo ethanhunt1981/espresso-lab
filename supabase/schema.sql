@@ -1,7 +1,7 @@
 -- =====================================================================
 -- Espresso Lab — Community-Kaffee-Bibliothek
--- SQL-Schema v2.1 (gehärtet, Security-Hardening nach LLM Security Council
--- + Supabase Security Advisor)
+-- SQL-Schema v2.1 (gehärtet: Row Level Security, harte Constraints,
+-- Rate-Limiting, Advisor-konforme Berechtigungen)
 --
 -- Fixes gegenüber v1:
 --   * RLS ZWINGEND aktiviert (Critical Fix #1)  — v1 verließ sich auf
