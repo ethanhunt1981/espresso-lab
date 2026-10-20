@@ -89,6 +89,28 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 - [ ] Spam-Schutz verfeinern (z.B. Cloudflare Turnstile)
 - [ ] Übersetzung der UI (EN-Variante parallel zum DE-Original)
 
+## Launch-Politur (2026-10-20, direkt nach dem Reddit-Post)
+
+- [x] **Bibliothek-Grid auf Desktop repariert:** Spaltenzahl richtet sich
+      jetzt nach der echten Container-Breite
+      (`grid-cols-[repeat(auto-fill,minmax(240px,1fr))]`) statt nach
+      Viewport-Breakpoints — vorher wurden bei breitem Fenster 3 Spalten
+      in ein schmales Panel gequetscht (Buttons umgebrochen, Leerraum-Scrollleiste)
+- [x] **Vergleichstabelle scrollbar** (`overflow-x-auto`), Karten-Buttons
+      umbrechbar (`flex-wrap`)
+- [x] **Extraktionswissen kompakt:** volles Breitenband (`lg:col-span-12`)
+      unter allen drei Spalten mit 4 Karten — SCA-EY-Fenster, TDS-Stärke,
+      Extraktionstreiber, Zeit-Kinetik; verknüpft jeweils die Diagramme
+      *(Lektion: nach dem HTML-Edit fehlte `npm run build:css` → die
+      neue Klasse `lg:col-span-12` war nicht im Build und das Panel
+      saß auf 1/12-Breite. Regel: nach jedem HTML-Edit mit neuen
+      Klassen SOFORT rebuilden und die Klasse im CSS verifizieren)*
+- [x] **Drei Spalten auf gleichmäßige Höhe** gestretched (`items-start`
+      entfernt), damit vor dem Wissensband kein Stufen-Leerraum entsteht;
+      Simulations-Panel stapelt Inhalt oben bündig (kein `justify-between`,
+      kein Umbruch zwischen Canvas/Waage/Buttons) und sammelt Überschuss
+      nur am Panel-Ende — stabiles Panel-Verhalten bei jedem Tabwechsel
+
 ---
 
 ## Meilensteine
@@ -101,7 +123,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 | M4 | Phase 4: Fallback + Share-Link + JSON-Export/Import | ✅ erledigt |
 | M6 | 🔒 Security-Hardening: RLS, Constraints, Rate-Limit, Frontend-Härtung | ✅ erledigt & verifiziert (Phase S1+S2) — Details siehe interne Security-Roadmap (privat) |
 | M5 | Öffentlicher Aufruf (Reddit r/espresso, Kaffee-Foren) | ✅ **erledigt (2026-10-19):** englischer Post live auf Reddit r/espresso; deutschsprachige Kanäle (Kaffee-Netz & Co.) folgen; Follow-up-Kommentar geplant, sobald Phase 5.6 (EN-Übersetzung) online ist |
-| M7 | Phase S3: Supply-Chain-Härtung (Version-Pinning, SRI, CSP, Tailwind-Lokal-Build, Favicon) | 🔶 gebaut — Browser-Verifikation ausstehend |
+| M7 | Phase S3: Supply-Chain-Härtung (Version-Pinning, SRI, CSP, Tailwind-Lokal-Build, Favicon) | ✅ **erledigt & verifiziert (2026-10-20):** automatisierte Checks (Assets 200, SRI-Hash matcht CDN-Bytes, Tailwind-Klassenabdeckung 0 fehlend) + Inhaber-Sichtprüfung auf lokal & GitHub Pages — S3.6 abgeschlossen |
 
 ---
 

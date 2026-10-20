@@ -21,6 +21,7 @@ The Espresso Lab combines barista science with interactive web technology:
 * **Pressure & Channeling Risk:** Monitors flow dynamics and warns against sudden channeling risks under high pressure and fine grinds.
 * **Visual Live Animation:** An animated bottomless portafilter displaying the "flow stream" (mouse tail), tiger striping, spray patterns, and crema build-up inside the glass.
 * **Scientific Charts:** Toggle between the **SCA Brewing Control Chart (EY% vs. TDS%)** and the **Time-Kinetics Chart** (flow rate & extraction progression).
+* **Extraction knowledge, built in:** four compact cards below the charts explain how to read them — the SCA EY window (18–22%), TDS strength (8–12%), the drivers of extraction, and the acid → sweet → bitter time kinetics.
 * **Community Coffee Library:** Share your beans with the world — no signup required:
   * Publish your coffee (brand, origin, roast level, process) together with the exact brew settings you used (grind, temperature, pressure, shot time) and the results you achieved (EY%, TDS%, taste scores).
   * Browse the library, search by brand/origin/notes, filter by roast level, and load any profile straight into the sliders.
