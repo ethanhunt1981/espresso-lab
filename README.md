@@ -46,30 +46,23 @@ The library is powered by a free [Supabase](https://supabase.com) database:
 
 ## 🔒 Security
 
-The application and the database schema were reviewed by an independent,
-adversarial LLM security council (red-teamer / database-architect / appsec
-auditors). Based on that review, the shipped code includes:
+No accounts, no passwords — and the library is designed so that anonymity
+never becomes a liability:
 
-* **Row Level Security enforced** — anonymous visitors can read and insert,
-  but never update or delete; destructive REST calls are rejected server-side.
-* **Hard input constraints in the database** — length limits and value ranges
-  on every column (brew parameters, sensory scores, free text), enforced even
-  against direct API calls that bypass the browser form.
-* **Server-side rate limiting** — a database trigger throttles new entries,
-  so bots can neither flood nor deface the library.
-* **Hardened frontend** — all database-provided strings are rendered via
-  `createElement` + `textContent` (no innerHTML with user data, no stored XSS),
-  shared URLs are validated and length-clamped before use, search input is
-  sanitized, and modern encoding APIs replace deprecated functions.
-* **Supply-chain hardening** — the Supabase client is loaded from an exactly
-  pinned version (`@2.118.0`) with Subresource Integrity (`sha384` hash +
-  `crossorigin`), so a tampered CDN response is rejected by the browser, and
-  a Content-Security-Policy whitelists exactly which hosts may serve
-  scripts, styles, and API connections (the Supabase endpoint being the
-  only external `connect-src`).
+* Anonymous visitors can **read and create** entries, but **never edit or
+  delete** anyone else's — enforced by database Row Level Security, even
+  against direct API calls that skip the browser.
+* Every field is validated server-side (length limits + value ranges) and
+  new entries are rate-limited server-side, so bots can't flood or deface
+  the library.
+* All database content is rendered XSS-safely; shared profile links are
+  validated before anything is applied to your sliders.
+* The Supabase client is loaded from a pinned version with a content
+  integrity hash (SRI), so a tampered CDN response is rejected.
 
-The detailed findings, threat models, and verification protocol are kept
-private by the repository owner and are **not** part of this public repository.
+Details live in [`supabase/schema.sql`](supabase/schema.sql) — see it yourself.
+Deeper findings and verification notes are kept private by the repository
+owner.
 
 ---
 
