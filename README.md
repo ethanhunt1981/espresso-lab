@@ -68,7 +68,7 @@ owner.
 
 ## 🤖 Development & AI Collaboration
 
-This project was co-created through human-AI collaboration using **Google Gemini 4 Argon**. The user provided the prompt design, concepts, and requirements, while the AI assisted in generating and structuring the code, physics logic, and documentation.
+This project was co-created through human-AI collaboration using an **AI assistant**. The user provided the prompt design, concepts, and requirements, while the AI assisted in generating and structuring the code, physics logic, and documentation.
 
 ---
 
