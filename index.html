@@ -498,8 +498,8 @@
                         </div>
                         <p id="communityStatus" class="text-[11px] text-stone-400 mb-3 hidden"></p>
                         <!-- Phase 5.2: Vergleichstabelle (max. 3 Kaffee parallel) -->
-                        <div id="communityCompare" class="hidden mb-3 rounded-xl border border-amber-600/40 bg-amber-950/20 p-3"></div>
-                        <div id="communityGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1"></div>
+                        <div id="communityCompare" class="hidden mb-3 rounded-xl border border-amber-600/40 bg-amber-950/20 p-3 overflow-x-auto"></div>
+                        <div id="communityGrid" class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3 max-h-[420px] overflow-y-auto overflow-x-hidden pr-1"></div>
                         <p class="text-[11px] text-stone-400 mt-3 leading-snug">
                             <strong>Community-Bibliothek:</strong> Kaffeefans teilen hier ihre Bohnen samt Einstellungen und erzielten Ergebnissen — ohne Registrierung. Klick auf <span class="text-amber-300">„Profil laden"</span> übernimmt die Referenz-Werte in deine Regler.
                         </p>
@@ -1989,7 +1989,7 @@
                 card.appendChild(meta);
 
                 const actions = document.createElement('div');
-                actions.className = 'flex gap-2 mt-auto pt-1';
+                actions.className = 'flex flex-wrap gap-2 mt-auto pt-1';
                 const loadBtn = document.createElement('button');
                 loadBtn.className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-stone-950 transition cursor-pointer';
                 loadBtn.textContent = 'Profil laden';
