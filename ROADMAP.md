@@ -149,4 +149,4 @@ bewusst nicht im öffentlichen Repo.
 
 - **Supabase-Mail:** Pause-Drohung für `espresso-lab` (>7 Tage Inaktivität).
 - **DB-Status:** Aktiv (`200 OK`), 1 Eintrag (`i-o Espresso intenso`).
-- **Automatisierung:** `keepalive.yml` — zufällige Abfrage (30–300 Min), Start 17:30 MEZ. Gepusht (`2947d47`).
+- **Automatisierung:** `keepalive.yml` — zufällige Abfrage (30–300 Min), Start 22:40 MEZ (einmalig). Erfolgreicher Run (`0eefa6d`): `HTTP 200`, Intervall `92 Min`. Gepusht (`0eefa6d`).

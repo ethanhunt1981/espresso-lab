@@ -111,7 +111,7 @@ ROADMAP.md              # Development roadmap
 
 - **Supabase-Mail:** Projekt `espresso-lab` (`aizvoccuyuzmnpedolbu`) droht Pause wegen Inaktivität (>7 Tage). Datenbank noch aktiv (1 Eintrag `coffees`).
 - **DB-Check:** `HTTP 200`, `content-range: 0-0/1` → 1 Profil (`i-o Espresso intenso`, 2026-10-23).
-- **Keepalive:** `.github/workflows/keepalive.yml` erstellt — zufällige Abfrage alle 30–300 Min, startet täglich 17:30 MEZ (`cron`). Push auf `main` (Commit `2947d47`).
+- **Keepalive:** `.github/workflows/keepalive.yml` aktiv. Erfolgreicher Run (`0eefa6d`): `HTTP 200`, zufälliger Intervall `92 Min` (23:20 UTC). Autonom weiterlaufend. Push `0eefa6d`.
 
 ---
 
