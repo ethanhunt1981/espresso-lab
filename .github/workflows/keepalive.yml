@@ -1,0 +1,46 @@
+name: Supabase Keepalive
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Täglich 17:30 MEZ (für den ersten Start; danach autonom weiterlaufend)
+    - cron: '30 17 * * *'
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supabase-Key aus Konfig lesen
+        run: |
+          SUPA_KEY=$(grep -oP 'SUPABASE_ANON_KEY: .*' js/config.js | sed "s/.*'\(.*\)'/\1/")
+          echo "SUPA_KEY=$SUPA_KEY" >> $GITHUB_ENV
+
+      - name: Datenbank-Abfrage (Aktivität erzeugen)
+        env:
+          SUPA_KEY: ${{ env.SUPA_KEY }}
+        run: |
+          echo "Abfrage an Supabase ..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $SUPA_KEY" \
+            -H "Authorization: Bearer $SUPA_KEY" \
+            -H "Content-Type: application/json" \
+            "https://aizvoccuyuzmnpedolbu.supabase.co/rest/v1/coffees?select=id")
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Warnung: Abfrage nicht erfolgreich ($STATUS)"
+          fi
+
+      - name: Zufällige Wartezeit berechnen und selbst triggern
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Zufallszahl zwischen 30 und 300 Minuten
+          DELAY=$((30 + RANDOM % 271))
+          echo "Nächster Lauf in $DELAY Minuten (ca. $(date -d '+${DELAY} minutes' '+%H:%M'))"
+          echo "DELAY=$DELAY" >> $GITHUB_ENV
+
+          echo "Warte $DELAY Minuten ..."
+          sleep $((DELAY * 60))
+
+          echo "Starte nächsten Workflow-Run ..."
+          gh workflow run "Supabase Keepalive" --repo ${{ github.repository }}
