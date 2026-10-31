@@ -107,6 +107,14 @@ ROADMAP.md              # Development roadmap
 
 ---
 
+## 📝 Notizen — 31.10.2026
+
+- **Supabase-Mail:** Projekt `espresso-lab` (`aizvoccuyuzmnpedolbu`) droht Pause wegen Inaktivität (>7 Tage). Datenbank noch aktiv (1 Eintrag `coffees`).
+- **DB-Check:** `HTTP 200`, `content-range: 0-0/1` → 1 Profil (`i-o Espresso intenso`, 2026-10-23).
+- **Keepalive:** `.github/workflows/keepalive.yml` erstellt — zufällige Abfrage alle 30–300 Min, startet täglich 17:30 MEZ (`cron`). Push auf `main` (Commit `2947d47`).
+
+---
+
 ## 📄 License
 
 This project is open-source and available under the [MIT License](LICENSE).

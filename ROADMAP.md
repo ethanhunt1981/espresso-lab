@@ -142,3 +142,11 @@ Konkrete Probe-Angriffe (REST-DELETE, Oversize-Insert, NaN-Injection) wurden
 nach der Migration verifiziert abgeblockt. Detaillierte Findings, Patches und
 die Security-Roadmap liegen **privat** beim Inhaber (`security/`, gitignored) —
 bewusst nicht im öffentlichen Repo.
+
+---
+
+## 📝 Notizen — 31.10.2026
+
+- **Supabase-Mail:** Pause-Drohung für `espresso-lab` (>7 Tage Inaktivität).
+- **DB-Status:** Aktiv (`200 OK`), 1 Eintrag (`i-o Espresso intenso`).
+- **Automatisierung:** `keepalive.yml` — zufällige Abfrage (30–300 Min), Start 17:30 MEZ. Gepusht (`2947d47`).
