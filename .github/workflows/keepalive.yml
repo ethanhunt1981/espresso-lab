@@ -9,6 +9,11 @@ jobs:
     env:
       SUPA_KEY: sb_publishable_qvdROpWTP1yFBnKliRVrgw_ICjQJomE
     steps:
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
       - uses: actions/checkout@v4
 
       - name: Datenbank-Abfrage (Aktivität erzeugen)
@@ -22,6 +27,7 @@ jobs:
           echo "HTTP Status: $STATUS"
           if [ "$STATUS" != "200" ]; then
             echo "Warnung: Abfrage nicht erfolgreich ($STATUS)"
+            exit 1
           else
             echo "Abfrage erfolgreich."
           fi
