@@ -9,11 +9,6 @@ jobs:
     env:
       SUPA_KEY: sb_publishable_qvdROpWTP1yFBnKliRVrgw_ICjQJomE
     steps:
-      - name: Install GitHub CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
-
       - uses: actions/checkout@v4
 
       - name: Datenbank-Abfrage (Aktivität erzeugen)
@@ -32,9 +27,7 @@ jobs:
             echo "Abfrage erfolgreich."
           fi
 
-      - name: Zufällige Wartezeit berechnen und selbst triggern
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Zufällige Wartezeit berechnen und GitHub API nutzen, um Workflow zu starten
         run: |
           DELAY=$((30 + RANDOM % 271))
           NEXT=$(date -u -d "now + ${DELAY} minutes" '+%Y-%m-%d %H:%M UTC' 2>/dev/null || date -d "+${DELAY} minutes" '+%Y-%m-%d %H:%M')
@@ -45,4 +38,8 @@ jobs:
           sleep $((DELAY * 60))
 
           echo "Starte nächsten Workflow-Run ..."
-          gh workflow run "Supabase Keepalive" --repo ${{ github.repository }}
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/keepalive.yml/dispatches" \
+            -d '{"ref":"main","event_type":"workflow_dispatch"}'
