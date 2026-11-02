@@ -109,9 +109,9 @@ ROADMAP.md              # Development roadmap
 
 ## 📝 Notizen — 31.10.2026
 
-- **Supabase-Mail:** Projekt `espresso-lab` (`aizvoccuyuzmnpedolbu`) droht Pause wegen Inaktivität (>7 Tage). Datenbank noch aktiv (1 Eintrag `coffees`).
-- **DB-Check:** `HTTP 200`, `content-range: 0-0/1` → 1 Profil (`i-o Espresso intenso`, 2026-10-23).
-- **Keepalive:** `.github/workflows/keepalive.yml` aktiv. Erfolgreicher Run (`4a39442`): `HTTP 200`, zufälliger Intervall `231 Min` (22:13 UTC). Autonom weiterlaufend. Push `4a39442`.
+- **Supabase-Mail:** Project `espresso-lab` (`aizvoccuyuzmnpedolbu`) is scheduled to be paused in the near future due to insufficient activity over the past 7 days.
+- **DB-Check:** `HTTP 200`, `content-range: 0-0/1` → 1 profile (`i-o Espresso intenso`, 2026-10-23).
+- **Keepalive:** `.github/workflows/keepalive.yml` is active. Successful run (`4a39442`): `HTTP 200`, random interval `231 Min` (22:13 UTC). Continues autonomously. Push `4a39442`.
 
 ---
 

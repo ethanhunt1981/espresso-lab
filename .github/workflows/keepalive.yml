@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Datenbank-Abfrage (Aktivität erzeugen)
+      - name: Database query (generate activity)
         run: |
-          echo "Abfrage an Supabase ..."
+          echo "Querying Supabase ..."
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "apikey: $SUPA_KEY" \
             -H "Authorization: Bearer $SUPA_KEY" \
@@ -21,23 +21,23 @@ jobs:
             "https://aizvoccuyuzmnpedolbu.supabase.co/rest/v1/coffees?select=id")
           echo "HTTP Status: $STATUS"
           if [ "$STATUS" != "200" ]; then
-            echo "Warnung: Abfrage nicht erfolgreich ($STATUS)"
+            echo "Warning: Query failed ($STATUS)"
             exit 1
           else
-            echo "Abfrage erfolgreich."
+            echo "Query successful."
           fi
 
-      - name: Zufällige Wartezeit berechnen und GitHub API nutzen, um Workflow zu starten
+      - name: Calculate random delay and use GitHub API to start workflow
         run: |
           DELAY=$((30 + RANDOM % 271))
           NEXT=$(date -u -d "now + ${DELAY} minutes" '+%Y-%m-%d %H:%M UTC' 2>/dev/null || date -d "+${DELAY} minutes" '+%Y-%m-%d %H:%M')
-          echo "Nächster Lauf in $DELAY Minuten (ca. $NEXT)"
+          echo "Next run in $DELAY minutes (approx. $NEXT)"
           echo "DELAY=$DELAY" >> $GITHUB_ENV
 
-          echo "Warte $DELAY Minuten ..."
+          echo "Sleeping $DELAY minutes ..."
           sleep $((DELAY * 60))
 
-          echo "Starte nächsten Workflow-Run ..."
+          echo "Starting next workflow run ..."
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \

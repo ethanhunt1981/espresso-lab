@@ -147,6 +147,6 @@ bewusst nicht im öffentlichen Repo.
 
 ## 📝 Notizen — 31.10.2026
 
-- **Supabase-Mail:** Pause-Drohung für `espresso-lab` (>7 Tage Inaktivität).
-- **DB-Status:** Aktiv (`200 OK`), 1 Eintrag (`i-o Espresso intenso`).
-- **Automatisierung:** `keepalive.yml` — zufällige Abfrage (30–300 Min), Start 22:40 MEZ (einmalig). Erfolgreicher Run (`4a39442`): `HTTP 200`, Intervall `231 Min`. Autonom weiterlaufend. Gepusht (`4a39442`).
+- **Supabase-Mail:** Project `espresso-lab` is scheduled to be paused due to insufficient activity over the past 7 days.
+- **DB-Status:** Active (`200 OK`), 1 entry (`i-o Espresso intenso`).
+- **Automation:** `keepalive.yml` — random query (30–300 Min), start 22:40 MEZ (once). Successful run (`4a39442`): `HTTP 200`, interval `231 Min`. Continues autonomously. Pushed (`4a39442`).
