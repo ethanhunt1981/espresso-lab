@@ -17,8 +17,9 @@ https://espresso-lab-jade.vercel.app/ wünscht.
 2. Ein Rezeptprofil ist eine Empfehlung, keine behauptete Verkostung. Die
    Simulatorwerte (EY, TDS, Sensorik) sind Modellwerte und keine gemessenen
    Extraktionsdaten. Behaupte niemals, den Kaffee selbst probiert zu haben.
-   Automatisch veröffentlichte Einträge müssen das in den Notizen ausdrücklich
-   offenlegen und eine offizielle Quelle nennen.
+   Automatisch veröffentlichte Einträge müssen als `Espresso Lab Bot` gekennzeichnet
+   sein. Das Notizfeld bleibt leer; Rösterangaben werden trotzdem auf der offiziellen
+   Website geprüft.
 3. Das Formular hat keinen eigenen Typ „Rezeptempfehlung“. Keine Verkostung
    vortäuschen und keine Notizen ergänzen, wenn der Nutzer sie nicht möchte.
    Shot-/Sensorikwerte bleiben Simulatorwerte. Für den Spitznamen immer den
@@ -46,7 +47,7 @@ https://espresso-lab-jade.vercel.app/ wünscht.
    erfinden.
 4. Spitznamen zuerst mit dem ToolZoon-Generator erzeugen. Dann „Mein Shot teilen“
    öffnen, Kaffee- und Rösterdaten sowie den gewählten Generator-Spitznamen
-   eintragen und veröffentlichen; Notizfeld nach Nutzerwunsch behandeln.
+   eintragen und veröffentlichen; das Notizfeld leer lassen.
 5. Ergebnis in der Bibliothek kontrollieren und dem Nutzer knapp mit Kaffee,
    Quelle und Hinweis auf simulierte Werte berichten.
 
