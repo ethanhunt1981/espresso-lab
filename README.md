@@ -1,12 +1,11 @@
 # ☕ Interactive Espresso Lab
 
-*Note: This application is in German.*
-
-An interactive web tool for real-time simulation of espresso extraction, fluid dynamics, and flavor profiles. 
+An interactive web tool for real-time simulation of espresso extraction, fluid dynamics, and flavor profiles.
 
 ---
 
 ## 🚀 Live Demo
+
 Test the Espresso Lab directly in your browser:
 👉 [https://ethanhunt1981.github.io/espresso-lab/](https://ethanhunt1981.github.io/espresso-lab/)
 
@@ -102,16 +101,16 @@ tailwind.config.js      # Tailwind theme config (colors, fonts)
 package.json            # Tailwind build scripts (devDependency only)
 js/config.js            # Supabase project URL + anon key (public by design)
 supabase/schema.sql     # Database schema & security policies (run once per project)
+automation_espresso-lab/ # OpenCode agent + scheduled community-profile workflow
 ROADMAP.md              # Development roadmap
 ```
 
 ---
 
-## 📝 Notizen — 31.10.2026
+## 📝 Automation Status — November 7, 2026
 
-- **Supabase-Mail:** Project `espresso-lab` (`aizvoccuyuzmnpedolbu`) is scheduled to be paused in the near future due to insufficient activity over the past 7 days.
-- **DB-Check:** `HTTP 200`, `content-range: 0-0/1` → 1 profile (`i-o Espresso intenso`, 2026-10-23).
-- **Keepalive:** `.github/workflows/keepalive.yml` is active. Successful run (`4a39442`): `HTTP 200`, random interval `231 Min` (22:13 UTC). Continues autonomously. Push `4a39442`.
+- **Supabase:** Project `espresso-lab` (`aizvoccuyuzmnpedolbu`) had warned about inactivity. The new `.github/workflows/coffee-library-scheduler.yml` is intended to publish real, verified coffee recommendations rather than synthetic keepalive traffic.
+- **Scheduler setup:** Add `OPENROUTER_API_KEY` as a GitHub Actions repository secret, enable Actions, push to the default branch, run a manual Preview, then set the repository variable `ESPRESSO_AUTO_PUBLISH_ENABLED=true`. Scheduled publication remains off until explicitly enabled.
 
 ---
 

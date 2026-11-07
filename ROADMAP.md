@@ -1,24 +1,23 @@
-# 🗺️ Roadmap — Community-Kaffee-Bibliothek
+# 🗺️ Roadmap — Community Coffee Library
 
-Ziel: Jeder Kaffeefan kann ohne Registrierung und ohne GitHub-Konto einen Kaffee
-(Marke, Herkunft, Röstgrad) hinterlegen, seine Einstellungen und Ergebnisse teilen
-und die Profile anderer direkt in der App laden und vergleichen.
+Goal: Any coffee enthusiast can without registration and without GitHub account leave behind a coffee
+(brand, origin, roast level) enter, share its settings and results share and other profiles load directly in the app and compare.
 
-Infrastruktur: GitHub Pages (statisch, wie bisher) + **Supabase** (kostenlose
-Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
+Infrastructure: GitHub Pages (static, as before) + **Supabase** (free
+Postgres database) for the common coffee profiles.
 
 ---
 
-## Phase 0 — Vorbereitung (Repository-Inhaber) ✅
+## Phase 0 — Preparation (Repository Owner) ✅
 
-> Nichts am Code — nur Konto & Konfiguration.
+> Nothing about the code — just account & configuration.
 
-- [x] Supabase-Account anlegen (kostenlos, GitHub-Login möglich)
-- [x] Neues Supabase-Projekt erstellen (Region: EU-Central)
+- [x] Supabase account create (free, GitHub login possible)
+- [x] New Supabase project create (Region: EU-Central)
 - [x] SQL-Schema ausführen (Tabelle `coffees` → `supabase/schema.sql`)
 - [x] Project-URL + anon key hinterlegen (`js/config.js`)
 
-## Phase 1 — Datenmodell & Backend-Anbindung ✅
+## Phase 1 — Data Model & Backend Binding ✅
 
 - [x] **SQL-Schema** `supabase/schema.sql`:
       Tabelle `coffees` (marke, name, herkunft, röstgrad, prozess,
@@ -26,11 +25,11 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
       ergebnisse: ey/tds/säure/süße/bitterkeit, notiz, ersteller-name, zeitstempel)
 - [x] **Row Level Security:** anonymes Lesen + anonymes Einfügen erlaubt,
       Löschen/Ändern nur für Inhaber (über Supabase-Dashboard)
-- [x] **Config-Mechanismus:** `js/config.js` mit Supabase-URL und anon key —
+- [x] **Config-Mechanismus:** `js/config.js` with Supabase-URL and anon key —
       App läuft auch ohne Werte (dann localStorage-Fallback)
 - [x] `supabase-js` per CDN einbinden (kein Build-Step nötig)
 
-## Phase 2 — UI: Kaffee-Bibliothek ✅
+## Phase 2 — UI: Coffee Library ✅
 
 - [x] Neuer App-Bereich „Kaffee-Bibliothek" (Tab neben den Diagrammen)
 - [x] **Hervorgehobenes Banner** am Seitenanfang mit CTA-Buttons
@@ -42,7 +41,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 - [x] Sortierung: neueste zuerst
       *(beste Bewertung → Phase 5, sobald Bewertungen existieren)*
 
-## Phase 3 — Shot speichern & Profil anlegen ✅
+## Phase 3 — Shot speichern & Profile erstellen ✅
 
 - [x] Dialog „Mein Shot": Formular (Bohnen-Daten + optionaler Spitzname +
       Cupping-Notiz), gefüllt mit aktuellen Reglerwerten + berechneten Ergebnissen
@@ -65,7 +64,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
       Import-Profile werden vor dem Speichern auf die DB-Constraints
       validiert/klemmen — Rate-Limit-Überläufe landen lokal mit „nur lokal"-Tag
 
-## Phase 5 — Verfeinerung (nach dem ersten Deployment)
+## Phase 5 — Refinement (after the first deployment)
 
 - [x] **Mehrfach-Ergebnisse pro Kaffee: Mittelwerte (Ø) darstellen** —
       Einträge desselben Kaffees (Marke + Name, case-insensitiv) werden
@@ -79,7 +78,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
       Auswahl bereinigt sich selbst bei Suche/Filter, ✕ schließt den Modus
 - [x] **Bewertungen am Profil (Daumen 👍)** — anonym, eine Stimme pro
       Browser; SQL `supabase/schema_update_v2.2_votes.sql` ausführen
-      (Tabelle `coffee_votes` mit RLS, Unique-Doppelvotenschutz
+      (Tabelle `coffee_votes` with RLS, Unique-Doppelvotenschutz
       `(coffee_id, voter_token)`, Rate-Limit 20/min); UI: 👍-Button pro
       Karte mit Zähler (Summe über alle Shots der Gruppe), eigene Stimme
       wird via `espressoLabMyVotes` gemerkt, Token aus
@@ -89,7 +88,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 - [ ] Spam-Schutz verfeinern (z.B. Cloudflare Turnstile)
 - [ ] Übersetzung der UI (EN-Variante parallel zum DE-Original)
 
-## Launch-Politur (2026-10-20, direkt nach dem Reddit-Post)
+## Launch Polish (2026-10-20, direkt nach dem Reddit-Post)
 
 - [x] **Bibliothek-Grid auf Desktop repariert:** Spaltenzahl richtet sich
       jetzt nach der echten Container-Breite
@@ -98,7 +97,7 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
       in ein schmales Panel gequetscht (Buttons umgebrochen, Leerraum-Scrollleiste)
 - [x] **Vergleichstabelle scrollbar** (`overflow-x-auto`), Karten-Buttons
       umbrechbar (`flex-wrap`)
-- [x] **Extraktionswissen kompakt:** volles Breitenband (`lg:col-span-12`)
+- [x] **Extraktionswissen kompakt:** volles Breitenband (`lg:col-span-12`
       unter allen drei Spalten mit 4 Karten — SCA-EY-Fenster, TDS-Stärke,
       Extraktionstreiber, Zeit-Kinetik; verknüpft jeweils die Diagramme
       *(Lektion: nach dem HTML-Edit fehlte `npm run build:css` → die
@@ -113,9 +112,9 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 
 ---
 
-## Meilensteine
+## Milestones
 
-| Meilenstein | Inhalt | Status |
+| Milestone | Content | Status |
 |---|---|---|
 | M1 | Phase 0 fertig (Supabase steht) | ✅ erledigt |
 | M2 | Phase 1+2: Bibliothek sichtbar, Profile ladbar | ✅ erledigt |
@@ -129,24 +128,24 @@ Postgres-Datenbank) für die gemeinsame Kaffee-Profile.
 
 ## 🔒 Security
 
-Nach dem Feature-Release wurde der Code durch ein adversariales
-LLM-Security-Council geprüft. Die daraus umgesetzten Härtings:
+After the feature-release was the code by an adversarial
+LLM-Security-Council geprüft. The resulting hardenings:
 
-- Row Level Security zwingend aktiviert (nur Lesen + Anlegen für anonyme Nutzer)
-- Harte Längen-/Wertebereichs-Constraints auf allen Datenbank-Spalten
+- Row Level Security zwingend activated (only Reading + Inserting for anonymous users)
+- Harte Längen-/Wertebereichs-Constraints on ALL Spalten inkl.
+      `origin`/`process` (Fix #2 „Generated-Column-Bomb")
 - Serverseitiges Rate-Limiting gegen Bot-Flooding
 - Frontend-Härtung: XSS-sicheres Rendering (standard: `createElement` +
   `textContent`), validierte Share-Links, sanatizerte Suche, moderne Encoder
 
-Konkrete Probe-Angriffe (REST-DELETE, Oversize-Insert, NaN-Injection) wurden
-nach der Migration verifiziert abgeblockt. Detaillierte Findings, Patches und
+Concrete probe attacks (REST-DELETE, Oversize-Insert, NaN-Injection) were
+nach der Migration verifiziert abgeblockt. Detailed findings, Patches and
 die Security-Roadmap liegen **privat** beim Inhaber (`security/`, gitignored) —
 bewusst nicht im öffentlichen Repo.
 
 ---
 
-## 📝 Notizen — 31.10.2026
+## 📝 Automation Status — November 7, 2026
 
-- **Supabase-Mail:** Project `espresso-lab` is scheduled to be paused due to insufficient activity over the past 7 days.
-- **DB-Status:** Active (`200 OK`), 1 entry (`i-o Espresso intenso`).
-- **Automation:** `keepalive.yml` — random query (30–300 Min), start 22:40 MEZ (once). Successful run (`4a39442`): `HTTP 200`, interval `231 Min`. Continues autonomously. Pushed (`4a39442`).
+- **Supabase:** Earlier inactivity warning; scheduled community profiles are intended to provide real database activity instead of synthetic keepalive traffic.
+- **Scheduler:** `.github/workflows/coffee-library-scheduler.yml` uses OpenCode with OpenRouter. It remains disabled until GitHub secret `OPENROUTER_API_KEY` is added, a preview succeeds, and repository variable `ESPRESSO_AUTO_PUBLISH_ENABLED=true` is set.

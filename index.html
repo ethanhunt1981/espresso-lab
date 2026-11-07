@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Content Security Policy: erlaubte Skript-/Verbindungs-Herkunft strikt einschränken (Phase S3.3)
-         Hinweis: Tailwind wird lokal ausgeliefert (css/tailwind.css, Build via `npm run build:css`),
-         cdn.tailwindcss.com ist deshalb bewusst NICHT mehr erlaubt. -->
+    <!-- Content Security Policy: strictly restrict allowed script/connection origins (Phase S3.3)
+         Note: Tailwind is delivered locally (css/tailwind.css, Build via `npm run build:css`),
+         cdn.tailwindcss.com is therefore consciously NOT allowed anymore. -->
     <meta http-equiv="Content-Security-Policy"
           content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://aizvoccuyuzmnpedolbu.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
     <title>Barista Pro — Interaktives Espresso-Lab</title>
@@ -97,24 +97,24 @@
                     <h1 class="text-lg sm:text-xl font-bold tracking-tight text-stone-100 flex items-center gap-2">
                         ESPRESSO LAB <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Sensory & Physics</span>
                     </h1>
-                    <p class="text-xs text-stone-400">Interaktive Simulation für Extraktionsausbeute, Hydrodynamik & Sensorik</p>
+                    <p class="text-xs text-stone-400">Interactive simulation for extraction yield, hydrodynamics & sensory analysis</p>
                 </div>
             </div>
 
             <!-- Quick Presets -->
             <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-xs text-stone-400 mr-1 hidden sm:inline">Rezept-Vorlagen:</span>
+                <span class="text-xs text-stone-400 mr-1 hidden sm:inline">Recipe presets:</span>
                 <button onclick="applyPreset('sweetspot')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 hover:bg-emerald-900/80 transition flex items-center gap-1.5 shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Perfekter Espresso
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Perfect espresso
                 </button>
                 <button onclick="applyPreset('sour')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-yellow-300 border border-stone-700 hover:bg-stone-700 transition flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-yellow-400"></span> Unterextrahiert (Grob)
+                    <span class="w-2 h-2 rounded-full bg-yellow-400"></span> Under-extracted (coarse)
                 </button>
                 <button onclick="applyPreset('bitter')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-amber-500 border border-stone-700 hover:bg-stone-700 transition flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-amber-600"></span> Überextrahiert (Fein/Heiß)
+                    <span class="w-2 h-2 rounded-full bg-amber-600"></span> Over-extracted (fine/hot)
                 </button>
                 <button onclick="applyPreset('turbo')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-800/80 text-sky-300 border border-stone-700 hover:bg-stone-700 transition flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-sky-400"></span> Modern Turbo-Shot
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span> Modern turbo shot
                 </button>
             </div>
         </div>
