@@ -27,6 +27,10 @@ export function dueByHour(plan, currentHour) {
   return plan.hours.filter((hour) => hour <= currentHour).length;
 }
 
+export function canPublish(count, target, allowOneExtra = false) {
+  return allowOneExtra ? count <= target : count < target;
+}
+
 function configFromSource(source, name) {
   const match = source.match(new RegExp(`${name}:\\s*['"]([^'"]+)['"]`));
   if (!match) throw new Error(`Could not read ${name} from js/config.js`);
@@ -67,7 +71,7 @@ async function main() {
   const outputPath = process.env.GITHUB_OUTPUT;
   const manualMode = process.env.MANUAL_MODE;
   if (manualMode) {
-    if (!['preview', 'publish'].includes(manualMode)) throw new Error('Invalid manual mode');
+    if (!['preview', 'publish', 'publish_once'].includes(manualMode)) throw new Error('Invalid manual mode');
     if (manualMode === 'preview') {
       await writeOutput(outputPath, { run: 'true', mode: manualMode, reason: 'manual preview' });
       return;
@@ -80,11 +84,14 @@ async function main() {
     const plan = dailyPlan(day);
     const { url, key } = await getDatabaseConfig();
     const count = await getTodayCount(url, key, day);
-    const shouldRun = count < plan.target;
+    const allowOneExtra = manualMode === 'publish_once';
+    const shouldRun = canPublish(count, plan.target, allowOneExtra);
     await writeOutput(outputPath, {
       run: String(shouldRun),
-      mode: manualMode,
-      reason: shouldRun ? 'manual publish within daily target' : 'daily target already met',
+      mode: 'publish',
+      reason: shouldRun
+        ? (allowOneExtra ? 'one-time manual publish; at most one entry above daily target' : 'manual publish within daily target')
+        : (allowOneExtra ? 'daily target already exceeded; one-time override unavailable' : 'daily target already met'),
     });
     return;
   }

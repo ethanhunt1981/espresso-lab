@@ -12,6 +12,7 @@ on:
         options:
           - preview
           - publish
+          - publish_once
         default: preview
 
 permissions:

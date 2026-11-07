@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dailyPlan, dueByHour } from './scheduler.mjs';
+import { canPublish, dailyPlan, dueByHour } from './scheduler.mjs';
 
 test('daily plan is stable for a UTC day and schedules one to three unique hours', () => {
   const first = dailyPlan('2026-11-07');
@@ -18,4 +18,10 @@ test('due count increases only as scheduled UTC hours pass', () => {
   assert.equal(dueByHour(plan, 5), 1);
   assert.equal(dueByHour(plan, 18), 1);
   assert.equal(dueByHour(plan, 19), 2);
+});
+
+test('one-time manual override allows at most one entry beyond the daily target', () => {
+  assert.equal(canPublish(2, 2), false);
+  assert.equal(canPublish(2, 2, true), true);
+  assert.equal(canPublish(3, 2, true), false);
 });
