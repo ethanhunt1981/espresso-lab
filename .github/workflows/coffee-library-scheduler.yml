@@ -1,0 +1,72 @@
+name: Espresso Library Scheduler
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Preview without posting, or publish one profile now if under the daily limit
+        required: true
+        type: choice
+        options:
+          - preview
+          - publish
+        default: preview
+
+permissions:
+  contents: read
+
+concurrency:
+  group: espresso-library-scheduler
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.schedule.outputs.run }}
+      mode: ${{ steps.schedule.outputs.mode }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Decide whether a profile is due
+        id: schedule
+        env:
+          MANUAL_MODE: ${{ github.event.inputs.mode }}
+          AUTO_PUBLISH_ENABLED: ${{ vars.ESPRESSO_AUTO_PUBLISH_ENABLED }}
+        run: |
+          node automation_espresso-lab/scheduler.mjs
+
+  publish:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Firefox for the browser agent
+        run: npx --yes playwright@1.65.0-alpha-2026-10-30 install --with-deps firefox
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/v2/install | bash
+      - name: Run Espresso Library agent
+        working-directory: automation_espresso-lab
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          MODE: ${{ needs.gate.outputs.mode }}
+        run: |
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "Missing GitHub Actions secret OPENROUTER_API_KEY"
+            exit 1
+          fi
+          if [ "$MODE" = "preview" ]; then
+            export PLAYWRIGHT_MCP_BLOCKED_ORIGINS="https://espresso-lab-jade.vercel.app;https://aizvoccuyuzmnpedolbu.supabase.co"
+          fi
+          PROMPT="$(sed -e "s/{{MODE}}/$MODE/g" -e "s/{{UTC_DATE}}/$(date -u +%F)/g" agent-prompt.md)"
+          opencode run "$PROMPT"

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "openrouter/cohere/north-mini-code:free",
+  "websearch": {
+    "provider": "tinyfish"
+  },
+  "mcp": {
+    "servers": {
+      "playwright": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@playwright/mcp@0.0.84",
+          "--headless",
+          "--browser",
+          "firefox",
+          "--isolated",
+          "--allowed-hosts",
+          "*"
+        ],
+        "environment": {
+          "PLAYWRIGHT_MCP_BLOCKED_ORIGINS": "{env:PLAYWRIGHT_MCP_BLOCKED_ORIGINS}"
+        },
+        "timeout": {
+          "startup": 120000,
+          "execution": 120000
+        },
+        "codemode": false
+      }
+    }
+  },
+  "permissions": [
+    {
+      "action": "websearch",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "playwright_*",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": "*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*",
+      "effect": "deny"
+    }
+  ]
+}
