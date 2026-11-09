@@ -13,7 +13,7 @@ export function dailyPlan(day) {
     return (state >>> 0) / 0x1_0000_0000;
   };
 
-  const target = 1 + Math.floor(random() * 3);
+  const target = 3 + Math.floor(random() * 3);
   const hours = Array.from({ length: 24 }, (_, hour) => hour);
   for (let i = hours.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));

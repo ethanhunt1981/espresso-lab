@@ -7,7 +7,7 @@ Community-Kaffee-Bibliothek von Espresso Lab fest.
 - Website: <https://espresso-lab-jade.vercel.app/>
 
 Community-Einträge dürfen keine erfundenen Verkostungen oder Messwerte
-vortäuschen. Der Scheduler plant 1–3 Veröffentlichungsversuche pro UTC-Tag zu
+vortäuschen. Der Scheduler plant 3–5 Veröffentlichungsversuche pro UTC-Tag zu
 wechselnden Stunden. Veröffentlicht wird nur, wenn der Kaffee auf einer
 offiziellen Rösterseite verifiziert werden kann; bei Unsicherheit wird der Lauf
 ohne Eintrag beendet.
@@ -27,7 +27,7 @@ ohne Eintrag beendet.
 
 Der geplante Lauf prüft stündlich (UTC), ob einer der für diesen Tag deterministisch
 zufällig verteilten Veröffentlichungstermine erreicht ist. Die Anzahl pro Tag ist
-1–3. Vor jedem Post prüft er die heutigen Einträge, damit Nutzerbeiträge mitzählen
+3–5. Vor jedem Post prüft er die heutigen Einträge, damit Nutzerbeiträge mitzählen
 und das Tageslimit nicht überschritten wird. Die OpenRouter-Route ist zunächst
 `cohere/north-mini-code:free`; das Modell unterstützt Tool-Aufrufe, kann als
 kostenlose Route aber Rate-Limits oder Verfügbarkeitsprobleme haben. In solchen

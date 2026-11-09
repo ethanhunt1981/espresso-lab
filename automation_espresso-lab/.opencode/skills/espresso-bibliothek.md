@@ -53,7 +53,7 @@ https://espresso-lab-jade.vercel.app/ wünscht.
 
 ## Gewünschte Frequenz und Ausführung
 
-Der Nutzer wünscht 1–3 Einträge pro UTC-Tag zu zufällig gewählten und möglichst
+Der Nutzer wünscht 3–5 Einträge pro UTC-Tag zu zufällig gewählten und möglichst
 unterschiedlichen Uhrzeiten. Ein Skill allein läuft nicht im Hintergrund.
 Automatische Ausführung erfolgt ausschließlich über den verbundenen GitHub-
 Actions-Scheduler; außerhalb eines fälligen Laufs nur auf ausdrücklichen Aufruf.
