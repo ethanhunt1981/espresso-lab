@@ -19,9 +19,9 @@ https://espresso-lab-jade.vercel.app/ wünscht.
 2. Ein Rezeptprofil ist eine Empfehlung, keine behauptete Verkostung. Die
    Simulatorwerte (EY, TDS, Sensorik) sind Modellwerte und keine gemessenen
    Extraktionsdaten. Behaupte niemals, den Kaffee selbst probiert zu haben.
-   Automatisch veröffentlichte Einträge müssen als `Espresso Lab Bot` gekennzeichnet
-   sein. Das Notizfeld bleibt leer; Rösterangaben werden trotzdem auf der offiziellen
-   Website geprüft.
+   Automatisch veröffentlichte Einträge verwenden den mit dem Spitznamen-Generator
+   erzeugten Namen als Nutzername. Kein Bot-Label verwenden. Das Notizfeld bleibt
+   leer; Rösterangaben werden trotzdem auf der offiziellen Website geprüft.
 3. Das Formular hat keinen eigenen Typ „Rezeptempfehlung“. Keine Verkostung
    vortäuschen und keine Notizen ergänzen, wenn der Nutzer sie nicht möchte.
    Shot-/Sensorikwerte bleiben Simulatorwerte. Für den Spitznamen immer den
@@ -40,7 +40,8 @@ https://espresso-lab-jade.vercel.app/ wünscht.
    einen neuen, verifizierten und nicht doppelten Eintrag anlegen.
 6. Nach dem Absenden prüfen, dass der Eintrag tatsächlich in der Bibliothek
     erscheint. Keine Likes, Downloads oder sonstigen fremden Aktionen ausführen.
-7. Automatische Veröffentlichungen als `Espresso Lab Bot` kennzeichnen.
+7. Bei automatischen Veröffentlichungen den Generator-Spitznamen als Nutzernamen
+   verwenden; keinen Bot-Namen eintragen.
 
 ## Ablauf
 
@@ -53,8 +54,8 @@ https://espresso-lab-jade.vercel.app/ wünscht.
    deren Rezeptwerte übernehmen. Bei Unsicherheit keinen Eintrag anlegen.
 4. Für den ersten verifizierten, nicht doppelten Kandidaten einen plausiblen
    Rezeptstartpunkt im Simulator festlegen. Spitznamen mit dem ToolZoon-Generator
-   erzeugen; dann „Mein Shot teilen“ öffnen, Daten eintragen, Autor auf
-   `Espresso Lab Bot` setzen und das Notizfeld leer lassen. Höchstens einen neuen
+   erzeugen; dann „Mein Shot teilen“ öffnen, Daten eintragen, den Spitznamen als
+   Nutzernamen verwenden und das Notizfeld leer lassen. Höchstens einen neuen
    Eintrag pro Lauf veröffentlichen.
 5. Ergebnis in der Bibliothek kontrollieren und dem Nutzer knapp mit Kaffee,
    Quelle und Hinweis auf simulierte Werte berichten.
